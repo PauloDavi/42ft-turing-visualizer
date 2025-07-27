@@ -99,7 +99,7 @@ const App = () => {
             </GridItem>
           </Grid>
 
-          <Box textAlign="center" mt={4}>
+          <Box textAlign="center" mt={4} mb={6}>
             <Text
               fontSize="lg"
               fontWeight="semibold"

@@ -31,7 +31,20 @@ export class TuringMachine {
   }
 
   loadTape(initialTapeString: string): void {
-    this.tape = initialTapeString.split("");
+    // Validar se a fita contém apenas caracteres do alfabeto ou símbolo em branco
+    const tapeCharacters = initialTapeString.split("");
+    for (let i = 0; i < tapeCharacters.length; i++) {
+      const char = tapeCharacters[i];
+      if (!this.definition.alphabet.includes(char)) {
+        this.error = true;
+        this.message = `Erro: Caractere '${char}' na posição ${i} da fita não está no alfabeto. Alfabeto permitido: [${this.definition.alphabet.join(
+          ", "
+        )}]'.`;
+        return;
+      }
+    }
+
+    this.tape = tapeCharacters;
     this.headPosition = 0;
     this.currentState = this.definition.initial;
     this.lastAction = "Initial";

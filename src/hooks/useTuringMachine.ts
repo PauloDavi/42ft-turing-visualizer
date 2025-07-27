@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from "react";
 import { TuringMachine } from "../utils/TuringMachine";
-import { validateTuringMachineDefinition } from "../utils/validation";
+import {
+  validateTuringMachineDefinition,
+  validateTapeString,
+} from "../utils/validation";
 import { EXECUTION_SPEED_MS } from "../utils/constants";
 import type { MachineState } from "../types/TuringMachine";
 
@@ -54,6 +57,16 @@ export function useTuringMachine() {
       try {
         const definition = JSON.parse(definitionJson);
         const validatedDefinition = validateTuringMachineDefinition(definition);
+
+        // Validar fita antes de criar a máquina
+        const tapeValidation = validateTapeString(
+          initialTapeInput,
+          validatedDefinition.alphabet
+        );
+
+        if (!tapeValidation.isValid) {
+          throw new Error(tapeValidation.error);
+        }
 
         const newTuringMachine = new TuringMachine(validatedDefinition);
         setTuringMachine(newTuringMachine);

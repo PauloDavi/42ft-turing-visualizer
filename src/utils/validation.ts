@@ -1,5 +1,24 @@
 import type { TuringMachineDefinition } from "../types/TuringMachine";
 
+export function validateTapeString(
+  tapeString: string,
+  alphabet: string[]
+): { isValid: boolean; error?: string } {
+  for (let i = 0; i < tapeString.length; i++) {
+    const char = tapeString[i];
+    if (!alphabet.includes(char)) {
+      return {
+        isValid: false,
+        error: `Caractere '${char}' na posição ${i} da fita não está no alfabeto. Alfabeto permitido: [${alphabet.join(
+          ", "
+        )}].`,
+      };
+    }
+  }
+
+  return { isValid: true };
+}
+
 export function validateTuringMachineDefinition(
   definition: unknown
 ): TuringMachineDefinition {
@@ -155,12 +174,16 @@ export function validateTuringMachineDefinition(
 
   if (missingStates.length > 0) {
     throw new Error(
-      `Os seguintes estados não finais não possuem transições definidas: ${missingStates.join(", ")}.`
+      `Os seguintes estados não finais não possuem transições definidas: ${missingStates.join(
+        ", "
+      )}.`
     );
   }
   if (extraStates.length > 0) {
     throw new Error(
-      `As transições possuem estados que não são estados não finais: ${extraStates.join(", ")}.`
+      `As transições possuem estados que não são estados não finais: ${extraStates.join(
+        ", "
+      )}.`
     );
   }
 

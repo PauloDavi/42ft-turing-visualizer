@@ -27,32 +27,35 @@ export const CodeEditor = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     startYRef.current = e.clientY;
     startHeightRef.current = editorHeight;
-    
+
     // Desabilitar seleção de texto durante o redimensionamento
-    document.body.style.userSelect = 'none';
-    document.body.style.webkitUserSelect = 'none';
-    
+    document.body.style.userSelect = "none";
+    document.body.style.webkitUserSelect = "none";
+
     const handleMouseMove = (e: MouseEvent) => {
       e.preventDefault();
       const deltaY = e.clientY - startYRef.current;
-      const newHeight = Math.max(150, Math.min(800, startHeightRef.current + deltaY));
+      const newHeight = Math.max(
+        150,
+        Math.min(800, startHeightRef.current + deltaY)
+      );
       setEditorHeight(newHeight);
     };
 
     const handleMouseUp = () => {
       // Reabilitar seleção de texto
-      document.body.style.userSelect = '';
-      document.body.style.webkitUserSelect = '';
-      
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   return (
@@ -71,7 +74,7 @@ export const CodeEditor = ({
           height={`${editorHeight}px`}
           defaultLanguage="json"
           value={value}
-          theme={colorMode == 'dark' ? 'vs-dark' : 'vs-light'}
+          theme={colorMode == "dark" ? "vs-dark" : "vs-light"}
           onChange={handleEditorChange}
           options={{
             minimap: { enabled: false },
@@ -81,7 +84,7 @@ export const CodeEditor = ({
             automaticLayout: true,
           }}
         />
-        
+
         {/* Handle de redimensionamento */}
         <Box
           position="absolute"
@@ -92,8 +95,8 @@ export const CodeEditor = ({
           bg={{ base: "gray.100", _dark: "gray.700" }}
           cursor="ns-resize"
           onMouseDown={handleMouseDown}
-          _hover={{ 
-            bg: { base: "gray.200", _dark: "gray.600" } 
+          _hover={{
+            bg: { base: "gray.200", _dark: "gray.600" },
           }}
           transition="background-color 0.2s"
           display="flex"
@@ -122,7 +125,7 @@ export const CodeEditor = ({
               opacity="0.5"
             />
           </Box>
-          
+
           {/* Área invisível maior para facilitar o clique */}
           <Box
             position="absolute"

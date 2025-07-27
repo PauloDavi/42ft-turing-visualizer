@@ -24,7 +24,13 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
   }, [tape, headPosition]);
 
   return (
-    <Box bg={{ base: "blue.50", _dark: "blue.900" }} p={6} borderRadius="xl" shadow="inner" h="full">
+    <Box
+      bg={{ base: "blue.50", _dark: "blue.900" }}
+      p={6}
+      borderRadius="xl"
+      shadow="inner"
+      h="full"
+    >
       <Text
         fontSize="2xl"
         fontWeight="bold"
@@ -66,22 +72,38 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
                 w="50px"
                 h="50px"
                 border="2px"
-                borderColor={cell.isHead ? "green.500" : { base: "gray.400", _dark: "gray.600" }}
+                borderColor={
+                  cell.isHead
+                    ? "green.500"
+                    : { base: "gray.400", _dark: "gray.600" }
+                }
                 borderRadius="md"
-                bg={cell.isHead ? { base: "green.50", _dark: "green.800" } : { base: "white", _dark: "gray.700" }}
+                bg={
+                  cell.isHead
+                    ? { base: "green.50", _dark: "green.800" }
+                    : { base: "white", _dark: "gray.700" }
+                }
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 fontSize="lg"
                 fontWeight="bold"
-                color={cell.isHead ? { base: "green.700", _dark: "green.200" } : { base: "gray.700", _dark: "gray.200" }}
+                color={
+                  cell.isHead
+                    ? { base: "green.700", _dark: "green.200" }
+                    : { base: "gray.700", _dark: "gray.200" }
+                }
                 transition="all 0.3s"
                 transform={cell.isHead ? "scale(1.1)" : "scale(1)"}
                 boxShadow={cell.isHead ? "lg" : "sm"}
               >
                 {cell.value}
               </Box>
-              <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }} mt={1}>
+              <Text
+                fontSize="xs"
+                color={{ base: "gray.500", _dark: "gray.400" }}
+                mt={1}
+              >
                 {cell.index}
               </Text>
             </Box>

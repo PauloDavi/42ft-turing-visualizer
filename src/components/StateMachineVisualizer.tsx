@@ -540,7 +540,12 @@ export const StateMachineVisualizer = ({
 
   return (
     <VStack gap={6} align="stretch">
-      <Box bg={{ base: "green.50", _dark: "green.900" }} p={6} borderRadius="xl" shadow="inner">
+      <Box
+        bg={{ base: "green.50", _dark: "green.900" }}
+        p={6}
+        borderRadius="xl"
+        shadow="inner"
+      >
         <Text
           fontSize="2xl"
           fontWeight="bold"
