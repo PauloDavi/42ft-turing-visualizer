@@ -6,6 +6,7 @@ import {
   GridItem,
   Heading,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { useTuringMachine } from "./hooks/useTuringMachine";
 import {
@@ -15,6 +16,7 @@ import {
   MachineControls,
   CodeEditor,
   TapeInput,
+  GitHubInfos,
 } from "./components";
 import {
   DEFAULT_MACHINE_DEFINITION,
@@ -65,97 +67,96 @@ const App = () => {
 
   return (
     <Container maxW="container.xl" py={8}>
-      <Heading
-        as="h1"
-        size="2xl"
-        textAlign="center"
-        mb={6}
-        fontWeight="extrabold"
-      >
-        Simulador de Máquina de Turing
-        <ColorModeButton ml={2} />
-      </Heading>
+      <VStack gap={6} align="stretch">
+        <VStack gap={4}>
+          <Heading as="h1" size="2xl" textAlign="center" fontWeight="extrabold">
+            Simulador de Máquina de Turing
+            <ColorModeButton ml={2} />
+          </Heading>
+          <GitHubInfos />
+        </VStack>
 
-      <Box
-        bg={{ base: "white", _dark: "gray.800" }}
-        shadow="lg"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor={{ base: "gray.200", _dark: "gray.700" }}
-        p={8}
-      >
-        <Grid templateColumns={{ base: "1fr", md: "1fr" }} gap={6} mb={6}>
-          <GridItem>
-            <CodeEditor
-              value={tmDefinitionInput}
-              onChange={setTmDefinitionInput}
-            />
-          </GridItem>
-          <GridItem>
-            <TapeInput
-              value={initialTapeInput}
-              onChange={setInitialTapeInput}
-            />
-          </GridItem>
-        </Grid>
-
-        <Box textAlign="center" mt={4}>
-          <Text
-            fontSize="lg"
-            fontWeight="semibold"
-            color={machineState.error ? "red.600" : "green.600"}
-          >
-            {machineState.message}
-          </Text>
-        </Box>
-
-        {!!turingMachine && (
+        <Box
+          bg={{ base: "white", _dark: "gray.800" }}
+          shadow="lg"
+          borderRadius="xl"
+          border="1px solid"
+          borderColor={{ base: "gray.200", _dark: "gray.700" }}
+          p={8}
+        >
           <Grid templateColumns={{ base: "1fr", md: "1fr" }} gap={6} mb={6}>
             <GridItem>
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                <GridItem>
-                  <TapeDisplay
-                    tape={machineState.tape}
-                    headPosition={machineState.headPosition}
-                  />
-                </GridItem>
-
-                <GridItem>
-                  <MachineInfo
-                    name={turingMachine?.definition.name}
-                    currentState={machineState.currentState}
-                    headPosition={machineState.headPosition}
-                    lastRead={machineState.lastRead}
-                    lastWrite={machineState.lastWrite}
-                    lastAction={machineState.lastAction}
-                  />
-                </GridItem>
-              </Grid>
+              <CodeEditor
+                value={tmDefinitionInput}
+                onChange={setTmDefinitionInput}
+              />
             </GridItem>
-
             <GridItem>
-              <StateMachineVisualizer
-                definition={turingMachine ? turingMachine.definition : null}
-                currentState={machineState.currentState}
-                lastTransitionId={machineState.lastTransitionId}
+              <TapeInput
+                value={initialTapeInput}
+                onChange={setInitialTapeInput}
               />
             </GridItem>
           </Grid>
-        )}
 
-        <MachineControls
-          onLoadMachine={handleLoadMachine}
-          onResetTape={handleResetTape}
-          onStepMachine={stepMachine}
-          onRunMachine={runMachine}
-          onPauseMachine={pauseMachine}
-          canLoad={canLoad}
-          canReset={canReset}
-          canStep={canStep}
-          canRun={canRun}
-          canPause={canPause}
-        />
-      </Box>
+          <Box textAlign="center" mt={4}>
+            <Text
+              fontSize="lg"
+              fontWeight="semibold"
+              color={machineState.error ? "red.600" : "green.600"}
+            >
+              {machineState.message}
+            </Text>
+          </Box>
+
+          {!!turingMachine && (
+            <Grid templateColumns={{ base: "1fr", md: "1fr" }} gap={6} mb={6}>
+              <GridItem>
+                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                  <GridItem>
+                    <TapeDisplay
+                      tape={machineState.tape}
+                      headPosition={machineState.headPosition}
+                    />
+                  </GridItem>
+
+                  <GridItem>
+                    <MachineInfo
+                      name={turingMachine?.definition.name}
+                      currentState={machineState.currentState}
+                      headPosition={machineState.headPosition}
+                      lastRead={machineState.lastRead}
+                      lastWrite={machineState.lastWrite}
+                      lastAction={machineState.lastAction}
+                    />
+                  </GridItem>
+                </Grid>
+              </GridItem>
+
+              <GridItem>
+                <StateMachineVisualizer
+                  definition={turingMachine ? turingMachine.definition : null}
+                  currentState={machineState.currentState}
+                  lastTransitionId={machineState.lastTransitionId}
+                />
+              </GridItem>
+            </Grid>
+          )}
+
+          <MachineControls
+            onLoadMachine={handleLoadMachine}
+            onResetTape={handleResetTape}
+            onStepMachine={stepMachine}
+            onRunMachine={runMachine}
+            onPauseMachine={pauseMachine}
+            canLoad={canLoad}
+            canReset={canReset}
+            canStep={canStep}
+            canRun={canRun}
+            canPause={canPause}
+          />
+        </Box>
+      </VStack>
     </Container>
   );
 };

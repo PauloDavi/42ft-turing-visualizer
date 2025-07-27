@@ -1,9 +1,9 @@
 {
-  "name": "42_turing_visualizer",
+  "name": "42ft-turing-visualizer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://PauloDavi.github.io/42ft_turing_visualizer",
+  "homepage": "https://PauloDavi.github.io/42ft-turing-visualizer",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

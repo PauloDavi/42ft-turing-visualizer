@@ -37,8 +37,8 @@ Este projeto foi desenvolvido como parte do currículo da 42, especificamente pa
 
 ```bash
 # Clone o repositório
-git clone https://github.com/PauloDavi/42ft_turing_visualizer.git
-cd 42ft_turing_visualizer
+git clone https://github.com/PauloDavi/42ft-turing-visualizer.git
+cd 42ft-turing-visualizer
 
 # Instale as dependências
 npm install
