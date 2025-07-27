@@ -77,9 +77,11 @@ const App = () => {
       </Heading>
 
       <Box
+        bg={{ base: "white", _dark: "gray.800" }}
         shadow="lg"
         borderRadius="xl"
-        borderColor="gray.200"
+        border="1px solid"
+        borderColor={{ base: "gray.200", _dark: "gray.700" }}
         p={8}
       >
         <Grid templateColumns={{ base: "1fr", md: "1fr" }} gap={6} mb={6}>

@@ -540,11 +540,11 @@ export const StateMachineVisualizer = ({
 
   return (
     <VStack gap={6} align="stretch">
-      <Box bg="green.50" p={6} borderRadius="xl" shadow="inner">
+      <Box bg={{ base: "green.50", _dark: "green.900" }} p={6} borderRadius="xl" shadow="inner">
         <Text
           fontSize="2xl"
           fontWeight="bold"
-          color="green.800"
+          color={{ base: "green.800", _dark: "green.100" }}
           mb={4}
           textAlign="center"
         >
@@ -559,7 +559,7 @@ export const StateMachineVisualizer = ({
               border="3px solid"
               borderColor="gray.500"
             />
-            <Text fontSize="sm" color="gray.700">
+            <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               Estado Normal
             </Text>
           </HStack>
@@ -570,7 +570,7 @@ export const StateMachineVisualizer = ({
               border="5px solid"
               borderColor="yellow.500"
             />
-            <Text fontSize="sm" color="gray.700">
+            <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               Estado Atual
             </Text>
           </HStack>
@@ -581,7 +581,7 @@ export const StateMachineVisualizer = ({
               border="4px solid"
               borderColor="green.500"
             />
-            <Text fontSize="sm" color="gray.700">
+            <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               Estado Final
             </Text>
           </HStack>
@@ -598,7 +598,12 @@ export const StateMachineVisualizer = ({
           bg="gray.50"
         />
 
-        <Text fontSize="xs" color="gray.600" textAlign="center" mt={2}>
+        <Text
+          fontSize="xs"
+          color={{ base: "gray.700", _dark: "gray.100" }}
+          textAlign="center"
+          mt={2}
+        >
           Arraste os estados para reorganizar o diagrama. Use a roda do mouse
           para ampliar/reduzir. As transições são mostradas como: entrada/saída,
           movimento
