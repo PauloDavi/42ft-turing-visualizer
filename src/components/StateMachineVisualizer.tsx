@@ -1,0 +1,609 @@
+import { useRef, useCallback, useEffect } from "react";
+import { Box, Text, HStack, Circle, VStack, Flex } from "@chakra-ui/react";
+import * as d3 from "d3";
+import { NODE_RADIUS } from "../utils/constants";
+import type {
+  TuringMachineDefinition,
+  GraphNode,
+  GraphLink,
+} from "../types/TuringMachine";
+
+interface StateMachineVisualizerProps {
+  definition: TuringMachineDefinition | null;
+  currentState: string;
+  lastTransitionId: string | null;
+}
+
+export const StateMachineVisualizer = ({
+  definition,
+  currentState,
+  lastTransitionId,
+}: StateMachineVisualizerProps) => {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const simulationRef = useRef<d3.Simulation<GraphNode, GraphLink> | null>(
+    null
+  );
+  const currentDefinitionRef = useRef<TuringMachineDefinition | null>(null);
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
+  const updateHighlight = useCallback(() => {
+    const svg = d3.select(svgRef.current);
+    if (!svg || !definition) return;
+
+    const mainGroup = svg.select(".main-group");
+    if (mainGroup.empty()) return;
+
+    // Reset all nodes to default style
+    mainGroup
+      .selectAll(".node circle")
+      .style("fill", "#ffffff")
+      .style("stroke", "#64748b")
+      .style("stroke-width", "3px");
+
+    // Reset all links to default style
+    mainGroup
+      .selectAll(".link")
+      .style("stroke", "#64748b")
+      .style("stroke-width", "2px")
+      .style("opacity", "0.7")
+      .attr("marker-end", (d) =>
+        (d as GraphLink).isSelfLoop ? "url(#self-loop-arrow)" : "url(#arrow)"
+      );
+
+    // Style final states with double border
+    mainGroup
+      .selectAll(".node")
+      .filter((d) => definition.finals.includes((d as GraphNode).id))
+      .select("circle")
+      .style("stroke", "#10b981")
+      .style("stroke-width", "4px")
+      .style("fill", "#d1fae5");
+
+    // Highlight the current state
+    mainGroup
+      .selectAll(".node")
+      .filter((d) => (d as GraphNode).id === currentState)
+      .select("circle")
+      .style("fill", "#fef3c7")
+      .style("stroke", "#f59e0b")
+      .style("stroke-width", "5px")
+      .style("filter", "drop-shadow(0 0 10px rgba(245, 158, 11, 0.5))");
+
+    // Highlight the last transition
+    if (lastTransitionId) {
+      mainGroup
+        .selectAll(".link")
+        .filter((d) => (d as GraphLink).id === lastTransitionId)
+        .style("stroke", "#f59e0b")
+        .style("stroke-width", "4px")
+        .style("opacity", "1")
+        .attr("marker-end", (d) =>
+          (d as GraphLink).isSelfLoop
+            ? "url(#active-self-loop-arrow)"
+            : "url(#active-arrow)"
+        );
+    }
+  }, [currentState, lastTransitionId, definition]);
+
+  const renderGraph = useCallback(() => {
+    if (!definition || !svgRef.current) return;
+
+    // Só recriar o gráfico se a definição mudou
+    if (currentDefinitionRef.current === definition) return;
+    currentDefinitionRef.current = definition;
+
+    const container = d3.select(svgRef.current.parentNode as Element);
+    const width = (container.node() as Element)?.clientWidth || 800;
+    const height = 400; // Aumentar altura para acomodar melhor o layout
+
+    // Parar simulação anterior se existir
+    if (simulationRef.current) {
+      simulationRef.current.stop();
+    }
+
+    d3.select(svgRef.current).selectAll("*").remove();
+
+    const svg = d3
+      .select(svgRef.current)
+      .attr("width", width)
+      .attr("height", height)
+      .style("background", "#f8fafc")
+      .style("border", "2px solid #e2e8f0")
+      .style("border-radius", "8px");
+
+    // Criar grupo principal para zoom
+    const mainGroup = svg.append("g").attr("class", "main-group");
+
+    // Configurar zoom
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4]) // Zoom de 10% a 400%
+      .on("zoom", (event) => {
+        mainGroup.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+    zoomRef.current = zoom;
+
+    // Create defs for arrow markers
+    const defs = svg.append("defs");
+
+    // Normal arrow marker
+    defs
+      .append("marker")
+      .attr("id", "arrow")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10) // Posicionar a seta exatamente na borda
+      .attr("refY", 0)
+      .attr("markerWidth", 8)
+      .attr("markerHeight", 8)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .style("fill", "#64748b")
+      .style("stroke", "#64748b");
+
+    // Active arrow marker
+    defs
+      .append("marker")
+      .attr("id", "active-arrow")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10) // Posicionar a seta exatamente na borda
+      .attr("refY", 0)
+      .attr("markerWidth", 8)
+      .attr("markerHeight", 8)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .style("fill", "#f59e0b")
+      .style("stroke", "#f59e0b");
+
+    // Self-loop arrow marker (melhor posicionamento para loops)
+    defs
+      .append("marker")
+      .attr("id", "self-loop-arrow")
+      .attr("viewBox", "-1.2941 -4.8296 10.95 9.659")
+      .attr("refX", 9.6593) // Posicionar a seta na borda do estado
+      .attr("refY", -2.5882)
+      .attr("markerWidth", 8)
+      .attr("markerHeight", 8)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M -1.2941 -4.8296 L 9.6593 -2.5882 L 1.2941 4.8296")
+      .style("fill", "#64748b")
+      .style("stroke", "#64748b");
+
+    // Active self-loop arrow marker
+    defs
+      .append("marker")
+      .attr("id", "active-self-loop-arrow")
+      .attr("viewBox", "-1.2941 -4.8296 10.95 9.659")
+      .attr("refX", 9.6593) // Posicionar a seta na borda do estado
+      .attr("refY", -2.5882)
+      .attr("markerWidth", 8)
+      .attr("markerHeight", 8)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M -1.2941 -4.8296 L 9.6593 -2.5882 L 1.2941 4.8296")
+      .style("fill", "#f59e0b")
+      .style("stroke", "#f59e0b");
+
+    const graphNodes: GraphNode[] = definition.states.map((state) => ({
+      id: state,
+    }));
+    const graphLinks: GraphLink[] = [];
+    const linkGroups = new Map<string, GraphLink[]>();
+    const selfLoopCount = new Map<string, number>();
+
+    for (const sourceState in definition.transitions) {
+      definition.transitions[sourceState].forEach((t) => {
+        const linkId = `${sourceState}-${t.read}-${t.to_state}-${t.write}-${t.action}`;
+        const linkData: GraphLink = {
+          id: linkId,
+          source: sourceState,
+          target: t.to_state,
+          label: `${t.read}/${t.write}, ${t.action}`,
+        };
+
+        if (sourceState === t.to_state) {
+          const currentCount = selfLoopCount.get(sourceState) || 0;
+          selfLoopCount.set(sourceState, currentCount + 1);
+          linkData.isSelfLoop = true;
+          linkData.loopIndex = currentCount;
+        } else {
+          const groupKey = `${sourceState}-${t.to_state}`;
+          if (!linkGroups.has(groupKey)) {
+            linkGroups.set(groupKey, []);
+          }
+          linkGroups.get(groupKey)!.push(linkData);
+        }
+        graphLinks.push(linkData);
+      });
+    }
+
+    linkGroups.forEach((links) => {
+      if (links.length > 1) {
+        links.forEach((link, i) => {
+          link.multiLinkIndex = i;
+          link.totalMultiLinks = links.length;
+        });
+      }
+    });
+
+    const simulation = d3
+      .forceSimulation(graphNodes)
+      .force(
+        "link",
+        d3
+          .forceLink(graphLinks)
+          .id((d) => (d as GraphNode).id)
+          .distance(250) // Aumentar distância entre estados conectados
+      )
+      .force("charge", d3.forceManyBody().strength(-800)) // Aumentar repulsão entre nós
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collide", d3.forceCollide(NODE_RADIUS * 3)); // Aumentar área de colisão
+
+    // Armazenar referência da simulação
+    simulationRef.current = simulation;
+
+    const link = mainGroup
+      .append("g")
+      .attr("class", "links")
+      .selectAll("path")
+      .data(graphLinks)
+      .enter()
+      .append("path")
+      .attr("class", "link")
+      .attr("marker-end", (d) =>
+        d.isSelfLoop ? "url(#self-loop-arrow)" : "url(#arrow)"
+      )
+      .style("fill", "none")
+      .style("stroke", "#64748b")
+      .style("stroke-width", "2px")
+      .style("opacity", "0.7");
+
+    // Create link text backgrounds
+    const linkTextBackground = mainGroup
+      .append("g")
+      .attr("class", "link-text-backgrounds")
+      .selectAll("rect")
+      .data(graphLinks)
+      .enter()
+      .append("rect")
+      .attr("class", "link-text-bg")
+      .style("fill", "white")
+      .style("stroke", "#e5e7eb")
+      .style("stroke-width", "1px")
+      .style("rx", "4")
+      .style("ry", "4")
+      .style("opacity", "0.9");
+
+    const linkText = mainGroup
+      .append("g")
+      .attr("class", "link-texts")
+      .selectAll("text")
+      .data(graphLinks)
+      .enter()
+      .append("text")
+      .attr("class", "link-text")
+      .text((d) => d.label)
+      .style("font-family", "Inter, system-ui, sans-serif")
+      .style("font-size", "11px")
+      .style("font-weight", "700")
+      .style("fill", "#1f2937")
+      .style("text-anchor", "middle")
+      .style("dominant-baseline", "central")
+      .style("pointer-events", "none")
+      .style("stroke", "#ffffff")
+      .style("stroke-width", "3px")
+      .style("paint-order", "stroke fill");
+
+    const node = mainGroup
+      .append("g")
+      .attr("class", "nodes")
+      .selectAll("g")
+      .data(graphNodes)
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .call(
+        d3
+          .drag<SVGGElement, GraphNode>()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended)
+      );
+
+    node
+      .append("circle")
+      .attr("r", NODE_RADIUS)
+      .style("fill", "#ffffff")
+      .style("stroke", "#64748b")
+      .style("stroke-width", "3px")
+      .style("filter", "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))")
+      .style("cursor", "pointer");
+
+    node
+      .append("text")
+      .text((d) => d.id)
+      .style("font-family", "Inter, system-ui, sans-serif")
+      .style("font-size", "14px")
+      .style("font-weight", "700")
+      .style("fill", "#1f2937")
+      .style("text-anchor", "middle")
+      .style("dominant-baseline", "central")
+      .style("pointer-events", "none");
+
+    simulation.on("tick", () => {
+      link.attr("d", (d) => {
+        const source = d.source as GraphNode;
+        const target = d.target as GraphNode;
+
+        if (d.isSelfLoop) {
+          const loopRadius = NODE_RADIUS * 1.2; // Reduzir tamanho dos loops
+          const angleOffset = (d.loopIndex || 0) * (Math.PI / 2);
+          const baseAngle = -Math.PI / 2 + angleOffset;
+
+          // Pontos de entrada e saída no círculo do nó (menos espaçados)
+          const entryAngle = baseAngle - Math.PI / 8; // 22.5 graus
+          const exitAngle = baseAngle + Math.PI / 8; // 22.5 graus
+
+          const entryX = source.x! + NODE_RADIUS * Math.cos(entryAngle);
+          const entryY = source.y! + NODE_RADIUS * Math.sin(entryAngle);
+          const exitX = source.x! + NODE_RADIUS * Math.cos(exitAngle);
+          const exitY = source.y! + NODE_RADIUS * Math.sin(exitAngle);
+
+          // Criar um círculo menor e mais compacto
+          return `M ${entryX},${entryY} 
+                  A ${loopRadius},${loopRadius} 0 1,1 ${exitX},${exitY}`;
+        }
+
+        const dx = target.x! - source.x!;
+        const dy = target.y! - source.y!;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Calcular pontos na borda dos círculos
+        const startX = source.x! + (NODE_RADIUS * dx) / distance;
+        const startY = source.y! + (NODE_RADIUS * dy) / distance;
+        const endX = target.x! - (NODE_RADIUS * dx) / distance;
+        const endY = target.y! - (NODE_RADIUS * dy) / distance;
+
+        if (d.totalMultiLinks && d.totalMultiLinks > 1) {
+          const offset =
+            ((d.multiLinkIndex || 0) - (d.totalMultiLinks - 1) / 2) * 20;
+          const normal = { x: -dy / distance, y: dx / distance };
+
+          const cpX = (startX + endX) / 2 + offset * normal.x;
+          const cpY = (startY + endY) / 2 + offset * normal.y;
+          return `M${startX},${startY} Q${cpX},${cpY} ${endX},${endY}`;
+        }
+
+        return `M${startX},${startY} L${endX},${endY}`;
+      });
+
+      node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+
+      linkText
+        .attr("x", (d) => {
+          const source = d.source as GraphNode;
+          const target = d.target as GraphNode;
+
+          if (d.isSelfLoop) {
+            const loopRadius = NODE_RADIUS * 1.2;
+            const angleOffset = (d.loopIndex || 0) * (Math.PI / 2);
+            const baseAngle = -Math.PI / 2 + angleOffset;
+            // Posicionar o texto mais próximo do loop
+            return (
+              source.x! + (loopRadius + NODE_RADIUS * 0.8) * Math.cos(baseAngle)
+            );
+          }
+          if (d.totalMultiLinks && d.totalMultiLinks > 1) {
+            const dx = target.x! - source.x!;
+            const dy = target.y! - source.y!;
+            const offset =
+              ((d.multiLinkIndex || 0) - (d.totalMultiLinks - 1) / 2) * 20;
+            const normal = { x: -dy, y: dx };
+            const length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+            normal.x /= length;
+            normal.y /= length;
+            return (source.x! + target.x!) / 2 + offset * normal.x;
+          }
+          return (source.x! + target.x!) / 2;
+        })
+        .attr("y", (d) => {
+          const source = d.source as GraphNode;
+          const target = d.target as GraphNode;
+
+          if (d.isSelfLoop) {
+            const loopRadius = NODE_RADIUS * 1.2;
+            const angleOffset = (d.loopIndex || 0) * (Math.PI / 2);
+            const baseAngle = -Math.PI / 2 + angleOffset;
+            // Posicionar o texto mais próximo do loop
+            return (
+              source.y! + (loopRadius + NODE_RADIUS * 0.8) * Math.sin(baseAngle)
+            );
+          }
+          if (d.totalMultiLinks && d.totalMultiLinks > 1) {
+            const dx = target.x! - source.x!;
+            const dy = target.y! - source.y!;
+            const offset =
+              ((d.multiLinkIndex || 0) - (d.totalMultiLinks - 1) / 2) * 20;
+            const normal = { x: -dy, y: dx };
+            const length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+            normal.x /= length;
+            normal.y /= length;
+            return (source.y! + target.y!) / 2 + offset * normal.y;
+          }
+          return (source.y! + target.y!) / 2;
+        });
+
+      // Position text backgrounds
+      linkTextBackground
+        .attr("x", (d) => {
+          const source = d.source as GraphNode;
+          const target = d.target as GraphNode;
+          let x: number;
+
+          if (d.isSelfLoop) {
+            const loopRadius = NODE_RADIUS * 1.2;
+            const angleOffset = (d.loopIndex || 0) * (Math.PI / 2);
+            const baseAngle = -Math.PI / 2 + angleOffset;
+            x =
+              source.x! +
+              (loopRadius + NODE_RADIUS * 0.8) * Math.cos(baseAngle);
+          } else if (d.totalMultiLinks && d.totalMultiLinks > 1) {
+            const dx = target.x! - source.x!;
+            const dy = target.y! - source.y!;
+            const offset =
+              ((d.multiLinkIndex || 0) - (d.totalMultiLinks - 1) / 2) * 20;
+            const normal = { x: -dy, y: dx };
+            const length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+            normal.x /= length;
+            normal.y /= length;
+            x = (source.x! + target.x!) / 2 + offset * normal.x;
+          } else {
+            x = (source.x! + target.x!) / 2;
+          }
+
+          // Center the background rectangle
+          const textWidth = d.label.length * 6; // Approximate text width
+          return x - textWidth / 2;
+        })
+        .attr("y", (d) => {
+          const source = d.source as GraphNode;
+          const target = d.target as GraphNode;
+          let y: number;
+
+          if (d.isSelfLoop) {
+            const loopRadius = NODE_RADIUS * 1.2;
+            const angleOffset = (d.loopIndex || 0) * (Math.PI / 2);
+            const baseAngle = -Math.PI / 2 + angleOffset;
+            y =
+              source.y! +
+              (loopRadius + NODE_RADIUS * 0.8) * Math.sin(baseAngle);
+          } else if (d.totalMultiLinks && d.totalMultiLinks > 1) {
+            const dx = target.x! - source.x!;
+            const dy = target.y! - source.y!;
+            const offset =
+              ((d.multiLinkIndex || 0) - (d.totalMultiLinks - 1) / 2) * 20;
+            const normal = { x: -dy, y: dx };
+            const length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+            normal.x /= length;
+            normal.y /= length;
+            y = (source.y! + target.y!) / 2 + offset * normal.y;
+          } else {
+            y = (source.y! + target.y!) / 2;
+          }
+
+          return y - 8; // Center vertically (half of text height)
+        })
+        .attr("width", (d) => d.label.length * 6 + 8) // Text width + padding
+        .attr("height", 16);
+    });
+
+    function dragstarted(
+      event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>,
+      d: GraphNode
+    ) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(
+      event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>,
+      d: GraphNode
+    ) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(
+      event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>,
+      d: GraphNode
+    ) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    updateHighlight();
+  }, [definition, updateHighlight]);
+
+  useEffect(() => {
+    renderGraph();
+  }, [definition, renderGraph]); // Incluir renderGraph como dependência
+
+  useEffect(() => {
+    updateHighlight();
+  }, [updateHighlight]); // Atualizar highlights quando estado/transição mudar
+
+  return (
+    <VStack gap={6} align="stretch">
+      <Box bg="green.50" p={6} borderRadius="xl" shadow="inner">
+        <Text
+          fontSize="2xl"
+          fontWeight="bold"
+          color="green.800"
+          mb={4}
+          textAlign="center"
+        >
+          Visualização da Máquina de Estados
+        </Text>
+
+        <Flex justify="center" mb={4} gap={6} wrap="wrap">
+          <HStack gap={2}>
+            <Circle
+              size="16px"
+              bg="white"
+              border="3px solid"
+              borderColor="gray.500"
+            />
+            <Text fontSize="sm" color="gray.700">
+              Estado Normal
+            </Text>
+          </HStack>
+          <HStack gap={2}>
+            <Circle
+              size="16px"
+              bg="yellow.100"
+              border="5px solid"
+              borderColor="yellow.500"
+            />
+            <Text fontSize="sm" color="gray.700">
+              Estado Atual
+            </Text>
+          </HStack>
+          <HStack gap={2}>
+            <Circle
+              size="16px"
+              bg="green.100"
+              border="4px solid"
+              borderColor="green.500"
+            />
+            <Text fontSize="sm" color="gray.700">
+              Estado Final
+            </Text>
+          </HStack>
+        </Flex>
+
+        <Box
+          as="svg"
+          ref={svgRef}
+          w="full"
+          minH="400px"
+          border="1px solid"
+          borderColor="gray.300"
+          borderRadius="md"
+          bg="gray.50"
+        />
+
+        <Text fontSize="xs" color="gray.600" textAlign="center" mt={2}>
+          Arraste os estados para reorganizar o diagrama. Use a roda do mouse
+          para ampliar/reduzir. As transições são mostradas como: entrada/saída,
+          movimento
+        </Text>
+      </Box>
+    </VStack>
+  );
+};
