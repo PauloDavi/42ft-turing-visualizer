@@ -1,58 +1,59 @@
 # Turing Machine Visualizer
 
-Um visualizador interativo de Máquinas de Turing desenvolvido para o projeto **ft_turing** da 42. Esta aplicação permite carregar, visualizar e executar definições de Máquinas de Turing através de uma interface web moderna e intuitiva.
+An interactive Turing Machine visualizer developed for the **ft_turing** project at 42. This application allows you to load, visualize, and execute Turing Machine definitions through a modern and intuitive web interface.
 
-## 🎯 Sobre o Projeto
+## 🎯 About the Project
 
-Este projeto foi desenvolvido como parte do currículo da 42, especificamente para o projeto **ft_turing**. O objetivo é criar uma ferramenta visual que ajude no entendimento e debug de Máquinas de Turing, permitindo:
+This project was developed as part of the 42 curriculum, specifically for the **ft_turing** project. The goal is to create a visual tool that helps in understanding and debugging Turing Machines, allowing:
 
-- **Visualização gráfica** da máquina de estados
-- **Execução passo a passo** das transições
-- **Visualização da fita** em tempo real
-- **Validação** de definições JSON
-- **Interface responsiva** e moderna
+- **Graphical visualization** of the state machine
+- **Step-by-step execution** of transitions
+- **Real-time tape visualization**
+- **JSON definition validation**
+- **Responsive and modern interface**
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Technologies Used
 
-- **React 19** com TypeScript
-- **Chakra UI 3** para interface
-- **D3.js** para visualização de grafos
-- **Monaco Editor** para edição de código
-- **Vite** para build e desenvolvimento
+- **React 19** with TypeScript
+- **Chakra UI 3** for interface
+- **D3.js** for graph visualization
+- **Monaco Editor** for code editing
+- **Vite** for build and development
 
-## 📋 Funcionalidades
+## 📋 Features
 
-- ✅ Carregamento de definições JSON de Máquinas de Turing
-- ✅ Visualização gráfica da máquina de estados com zoom
-- ✅ Execução automática ou passo a passo
-- ✅ Visualização da fita com destaque da posição do cabeçote
-- ✅ Validação completa das definições
-- ✅ Suporte a transições múltiplas entre estados
-- ✅ Auto-loops visuais para transições recursivas
-- ✅ Tema claro/escuro
+- ✅ Loading JSON definitions of Turing Machines
+- ✅ Graphical visualization of state machine with zoom
+- ✅ Automatic or step-by-step execution
+- ✅ Tape visualization with head position highlighting
+- ✅ Complete definition validation
+- ✅ Support for multiple transitions between states
+- ✅ Visual auto-loops for recursive transitions
+- ✅ Light/dark theme
+- ✅ Internationalization (Portuguese/English)
 
-## 🛠️ Como Usar
+## 🛠️ How to Use
 
-### Instalação
+### Installation
 
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/PauloDavi/42ft-turing-visualizer.git
 cd 42ft-turing-visualizer
 
-# Instale as dependências
+# Install dependencies
 npm install
 
-# Execute em modo de desenvolvimento
+# Run in development mode
 npm run dev
 
-# Build para produção
+# Build for production
 npm run build
 ```
 
-### Definição da Máquina de Turing
+### Turing Machine Definition
 
-A aplicação aceita definições JSON no seguinte formato:
+The application accepts JSON definitions in the following format:
 
 ```json
 {
@@ -82,64 +83,72 @@ A aplicação aceita definições JSON no seguinte formato:
 }
 ```
 
-## 📖 Estrutura do JSON
+## 📖 JSON Structure
 
-### Campos Obrigatórios
+### Required Fields
 
-- **name**: Nome da máquina de Turing
-- **alphabet**: Array com símbolos do alfabeto (cada símbolo deve ter 1 caractere)
-- **blank**: Símbolo em branco (1 caractere)
-- **states**: Array com todos os estados da máquina
-- **initial**: Estado inicial (deve estar em `states`)
-- **finals**: Array com estados finais (deve haver pelo menos 1)
-- **transitions**: Objeto com transições por estado
+- **name**: Turing machine name
+- **alphabet**: Array with alphabet symbols (each symbol must be 1 character)
+- **blank**: Blank symbol (1 character)
+- **states**: Array with all machine states
+- **initial**: Initial state (must be in `states`)
+- **finals**: Array with final states (must have at least 1)
+- **transitions**: Object with transitions per state
 
-### Formato das Transições
+### Transition Format
 
-Cada transição deve conter:
-- **read**: Símbolo a ser lido (deve estar no alfabeto ou ser o símbolo em branco)
-- **write**: Símbolo a ser escrito (deve estar no alfabeto ou ser o símbolo em branco)
-- **to_state**: Estado de destino (deve estar em `states`)
-- **action**: Ação do cabeçote (`"LEFT"` ou `"RIGHT"`)
+Each transition must contain:
+- **read**: Symbol to be read (must be in alphabet or be the blank symbol)
+- **write**: Symbol to be written (must be in alphabet or be the blank symbol)
+- **to_state**: Destination state (must be in `states`)
+- **action**: Head action (`"LEFT"` or `"RIGHT"`)
 
-## 🎮 Como Usar a Interface
+## 🎮 How to Use the Interface
 
-1. **Carregue uma definição**: Cole o JSON da máquina no editor
-2. **Configure a fita inicial**: Digite a entrada na caixa de texto
-3. **Carregue a máquina**: Clique em "Carregar Máquina"
-4. **Execute**: Use os controles para executar passo a passo ou automaticamente
-5. **Visualize**: Observe a fita, estados e transições em tempo real
+1. **Load a definition**: Paste the machine JSON in the editor
+2. **Configure initial tape**: Type the input in the text box
+3. **Load the machine**: Click "Load Machine"
+4. **Execute**: Use controls to execute step by step or automatically
+5. **Visualize**: Observe the tape, states, and transitions in real time
 
-## 🔧 Scripts Disponíveis
+## 🔧 Available Scripts
 
 ```bash
-# Desenvolvimento
+# Development
 npm run dev
 
-# Build para produção
+# Build for production
 npm run build
 
-# Preview da build
+# Preview build
 npm run preview
 
 # Linting
 npm run lint
 ```
 
-## 📝 Validação
+## 📝 Validation
 
-A aplicação valida automaticamente:
-- Estrutura JSON correta
-- Presença de todos os campos obrigatórios
-- Símbolos do alfabeto com 1 caractere apenas
-- Estados iniciais e finais válidos
-- Consistência das transições
-- Pelo menos 1 estado final
+The application automatically validates:
+- Correct JSON structure
+- Presence of all required fields
+- Alphabet symbols with only 1 character
+- Valid initial and final states
+- Transition consistency
+- At least 1 final state
 
-## 🤝 Contribuição
+## 🌐 Internationalization
 
-Este projeto foi desenvolvido como parte do currículo da 42. Contribuições são bem-vindas através de pull requests.
+The application supports:
+- **Portuguese (pt-BR)**: Default language
+- **English (en-US)**: Alternative language
 
-## 📄 Licença
+Use the language selector button in the top-right corner to switch between languages.
 
-Este projeto é open source e está disponível sob a licença MIT.
+## 🤝 Contributing
+
+This project was developed as part of the 42 curriculum. Contributions are welcome through pull requests.
+
+## 📄 License
+
+This project is open source and available under the MIT license.
