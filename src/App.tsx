@@ -15,8 +15,8 @@ import {
   MachineInfo,
   MachineControls,
   CodeEditor,
-  TapeInput,
   GitHubInfos,
+  InputAndControls,
 } from "./components";
 import {
   DEFAULT_MACHINE_DEFINITION,
@@ -35,11 +35,14 @@ const App = () => {
     turingMachine,
     machineState,
     isRunning,
+    speed,
     loadMachine,
     resetTape,
     stepMachine,
     runMachine,
     pauseMachine,
+    increaseSpeed,
+    decreaseSpeed,
   } = useTuringMachine();
 
   const handleLoadMachine = () => {
@@ -51,8 +54,8 @@ const App = () => {
   };
 
   // Determine button states
-  const canLoad = true;
-  const canReset = !!turingMachine;
+  const canLoad = !isRunning;
+  const canReset = !!turingMachine && !isRunning;
   const canStep =
     !!turingMachine &&
     !machineState.halted &&
@@ -92,9 +95,11 @@ const App = () => {
               />
             </GridItem>
             <GridItem>
-              <TapeInput
-                value={initialTapeInput}
-                onChange={setInitialTapeInput}
+              <InputAndControls
+                initialTapeInput={initialTapeInput}
+                setInitialTapeInput={setInitialTapeInput}
+                handleLoadMachine={handleLoadMachine}
+                canLoad={canLoad}
               />
             </GridItem>
           </Grid>
@@ -140,21 +145,25 @@ const App = () => {
                   lastTransitionId={machineState.lastTransitionId}
                 />
               </GridItem>
+
+              <GridItem>
+                <MachineControls
+                  onStepMachine={stepMachine}
+                  onRunMachine={runMachine}
+                  onPauseMachine={pauseMachine}
+                  onIncreaseSpeed={increaseSpeed}
+                  onDecreaseSpeed={decreaseSpeed}
+                  handleResetTape={handleResetTape}
+                  canReset={canReset}
+                  canStep={canStep}
+                  canRun={canRun}
+                  canPause={canPause}
+                  isRunning={isRunning}
+                  speed={speed}
+                />
+              </GridItem>
             </Grid>
           )}
-
-          <MachineControls
-            onLoadMachine={handleLoadMachine}
-            onResetTape={handleResetTape}
-            onStepMachine={stepMachine}
-            onRunMachine={runMachine}
-            onPauseMachine={pauseMachine}
-            canLoad={canLoad}
-            canReset={canReset}
-            canStep={canStep}
-            canRun={canRun}
-            canPause={canPause}
-          />
         </Box>
       </VStack>
     </Container>

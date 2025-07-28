@@ -5,3 +5,4 @@ export { MachineControls } from "./MachineControls";
 export { GitHubInfos } from "./GitHubInfos";
 export { CodeEditor } from "./CodeEditor";
 export { TapeInput } from "./TapeInput";
+export { InputAndControls } from "./InputAndControls";

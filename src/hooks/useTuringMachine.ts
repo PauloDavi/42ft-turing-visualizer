@@ -4,7 +4,6 @@ import {
   validateTuringMachineDefinition,
   validateTapeString,
 } from "../utils/validation";
-import { EXECUTION_SPEED_MS } from "../utils/constants";
 import type { MachineState } from "../types/TuringMachine";
 
 const initialMachineState: MachineState = {
@@ -27,6 +26,7 @@ export function useTuringMachine() {
   const [machineState, setMachineState] =
     useState<MachineState>(initialMachineState);
   const [intervalId, setIntervalId] = useState<number | null>(null);
+  const [speed, setSpeed] = useState(1); // Speed in seconds
   const intervalRef = useRef<number | null>(null);
 
   const updateMachineState = useCallback((tmInstance: TuringMachine) => {
@@ -146,7 +146,7 @@ export function useTuringMachine() {
         if (!stepped || turingMachine.halted || turingMachine.error) {
           pauseMachine();
         }
-      }, EXECUTION_SPEED_MS);
+      }, speed * 1000); // Convert speed to milliseconds
 
       intervalRef.current = id;
       setIntervalId(id);
@@ -157,6 +157,54 @@ export function useTuringMachine() {
         error: true,
       }));
     }
+  }, [turingMachine, updateMachineState, pauseMachine, speed]);
+
+  const increaseSpeed = useCallback(() => {
+    setSpeed((prevSpeed) => {
+      const newSpeed = Math.max(0.1, prevSpeed - 0.1); // Minimum 0.1 seconds
+      
+      // If machine is running, restart with new speed
+      if (intervalRef.current && turingMachine && !turingMachine.halted && !turingMachine.error) {
+        clearInterval(intervalRef.current);
+        const id = setInterval(() => {
+          const stepped = turingMachine.step();
+          updateMachineState(turingMachine);
+
+          if (!stepped || turingMachine.halted || turingMachine.error) {
+            pauseMachine();
+          }
+        }, newSpeed * 1000);
+        
+        intervalRef.current = id;
+        setIntervalId(id);
+      }
+      
+      return newSpeed;
+    });
+  }, [turingMachine, updateMachineState, pauseMachine]);
+
+  const decreaseSpeed = useCallback(() => {
+    setSpeed((prevSpeed) => {
+      const newSpeed = Math.min(3, prevSpeed + 0.1); // Maximum 3 seconds
+      
+      // If machine is running, restart with new speed
+      if (intervalRef.current && turingMachine && !turingMachine.halted && !turingMachine.error) {
+        clearInterval(intervalRef.current);
+        const id = setInterval(() => {
+          const stepped = turingMachine.step();
+          updateMachineState(turingMachine);
+
+          if (!stepped || turingMachine.halted || turingMachine.error) {
+            pauseMachine();
+          }
+        }, newSpeed * 1000);
+        
+        intervalRef.current = id;
+        setIntervalId(id);
+      }
+      
+      return newSpeed;
+    });
   }, [turingMachine, updateMachineState, pauseMachine]);
 
   const isRunning = intervalId !== null;
@@ -165,10 +213,13 @@ export function useTuringMachine() {
     turingMachine,
     machineState,
     isRunning,
+    speed,
     loadMachine,
     resetTape,
     stepMachine,
     runMachine,
     pauseMachine,
+    increaseSpeed,
+    decreaseSpeed,
   };
 }
