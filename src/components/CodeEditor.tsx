@@ -2,6 +2,7 @@ import Editor from "@monaco-editor/react";
 import { Box, Text } from "@chakra-ui/react";
 import { useColorMode } from "./ui";
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CodeEditorProps {
   value: string;
@@ -14,6 +15,7 @@ export const CodeEditor = ({
   onChange,
   height = "300px",
 }: CodeEditorProps) => {
+  const { t } = useTranslation();
   const [editorHeight, setEditorHeight] = useState(parseInt(height) || 300);
   const startYRef = useRef(0);
   const startHeightRef = useRef(0);
@@ -61,7 +63,7 @@ export const CodeEditor = ({
   return (
     <Box>
       <Text fontSize="lg" fontWeight="semibold" mb={2}>
-        Definição da Máquina de Turing (JSON):
+        {t('codeEditor.title')}
       </Text>
       <Box
         borderRadius="md"

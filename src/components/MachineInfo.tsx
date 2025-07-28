@@ -1,4 +1,5 @@
 import { Box, Text, VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 interface MachineInfoProps {
   name: string;
@@ -17,6 +18,8 @@ export const MachineInfo = ({
   lastWrite,
   lastAction,
 }: MachineInfoProps) => {
+  const { t } = useTranslation();
+
   return (
     <Box
       bg={{ base: "purple.50", _dark: "purple.900" }}
@@ -31,7 +34,7 @@ export const MachineInfo = ({
         mb={4}
         textAlign="center"
       >
-        Informações da Máquina - {name}
+        {t("machineInfo.title", { name })}
       </Text>
       <VStack
         gap={2}
@@ -39,7 +42,7 @@ export const MachineInfo = ({
         textAlign="center"
       >
         <Text fontSize="lg">
-          Estado Atual:{" "}
+          {t("labels.currentState")}:{" "}
           <Text
             as="span"
             fontWeight="bold"
@@ -49,7 +52,7 @@ export const MachineInfo = ({
           </Text>
         </Text>
         <Text fontSize="lg">
-          Posição da Cabeça:{" "}
+          {t("labels.headPosition")}:{" "}
           <Text
             as="span"
             fontWeight="bold"
@@ -59,7 +62,7 @@ export const MachineInfo = ({
           </Text>
         </Text>
         <Text fontSize="lg">
-          Última Leitura:{" "}
+          {t("labels.lastRead")}:{" "}
           <Text
             as="span"
             fontWeight="bold"
@@ -69,7 +72,7 @@ export const MachineInfo = ({
           </Text>
         </Text>
         <Text fontSize="lg">
-          Última Escrita:{" "}
+          {t("labels.lastWrite")}:{" "}
           <Text
             as="span"
             fontWeight="bold"
@@ -79,7 +82,7 @@ export const MachineInfo = ({
           </Text>
         </Text>
         <Text fontSize="lg">
-          Última Ação:{" "}
+          {t("labels.lastAction")}:{" "}
           <Text
             as="span"
             fontWeight="bold"

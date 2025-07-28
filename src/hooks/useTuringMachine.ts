@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { TuringMachine } from "../utils/TuringMachine";
 import {
   validateTuringMachineDefinition,
@@ -20,6 +21,7 @@ const initialMachineState: MachineState = {
 };
 
 export function useTuringMachine() {
+  const { t } = useTranslation();
   const [turingMachine, setTuringMachine] = useState<TuringMachine | null>(
     null
   );
@@ -56,24 +58,25 @@ export function useTuringMachine() {
     (definitionJson: string, initialTapeInput: string) => {
       try {
         const definition = JSON.parse(definitionJson);
-        const validatedDefinition = validateTuringMachineDefinition(definition);
+        const validatedDefinition = validateTuringMachineDefinition(definition, t);
 
         // Validar fita antes de criar a máquina
         const tapeValidation = validateTapeString(
           initialTapeInput,
-          validatedDefinition.alphabet
+          validatedDefinition.alphabet,
+          t
         );
 
         if (!tapeValidation.isValid) {
           throw new Error(tapeValidation.error);
         }
 
-        const newTuringMachine = new TuringMachine(validatedDefinition);
+        const newTuringMachine = new TuringMachine(validatedDefinition, t);
         setTuringMachine(newTuringMachine);
         updateMachineState(newTuringMachine);
         setMachineState((prev) => ({
           ...prev,
-          message: "Máquina de Turing carregada com sucesso!",
+          message: t("messages.machineLoadedSuccess"),
           error: false,
         }));
         newTuringMachine.loadTape(initialTapeInput);
@@ -90,7 +93,7 @@ export function useTuringMachine() {
         return null;
       }
     },
-    [updateMachineState]
+    [updateMachineState, t]
   );
 
   const resetTape = useCallback(
@@ -101,19 +104,19 @@ export function useTuringMachine() {
         updateMachineState(turingMachine);
         setMachineState((prev) => ({
           ...prev,
-          message: "Fita reiniciada.",
+          message: t("messages.tapeReset"),
           error: false,
           halted: false,
         }));
       } else {
         setMachineState((prev) => ({
           ...prev,
-          message: "Por favor, carregue uma Máquina de Turing primeiro.",
+          message: t("messages.loadMachineFirst"),
           error: true,
         }));
       }
     },
-    [turingMachine, updateMachineState, pauseMachine]
+    [turingMachine, updateMachineState, pauseMachine, t]
   );
 
   const stepMachine = useCallback(() => {
@@ -126,12 +129,11 @@ export function useTuringMachine() {
     } else {
       setMachineState((prev) => ({
         ...prev,
-        message:
-          "Por favor, carregue e reinicie uma Máquina de Turing primeiro.",
+        message: t("messages.loadAndResetFirst"),
         error: true,
       }));
     }
-  }, [turingMachine, updateMachineState, pauseMachine]);
+  }, [turingMachine, updateMachineState, pauseMachine, t]);
 
   const runMachine = useCallback(() => {
     if (turingMachine && !turingMachine.halted && !turingMachine.error) {
@@ -153,18 +155,23 @@ export function useTuringMachine() {
     } else {
       setMachineState((prev) => ({
         ...prev,
-        message: "Máquina não carregada ou já parou/erro. Reinicie a fita.",
+        message: t("messages.machineNotLoadedOrStopped"),
         error: true,
       }));
     }
-  }, [turingMachine, updateMachineState, pauseMachine, speed]);
+  }, [turingMachine, updateMachineState, pauseMachine, speed, t]);
 
   const increaseSpeed = useCallback(() => {
     setSpeed((prevSpeed) => {
       const newSpeed = Math.max(0.1, prevSpeed - 0.1); // Minimum 0.1 seconds
-      
+
       // If machine is running, restart with new speed
-      if (intervalRef.current && turingMachine && !turingMachine.halted && !turingMachine.error) {
+      if (
+        intervalRef.current &&
+        turingMachine &&
+        !turingMachine.halted &&
+        !turingMachine.error
+      ) {
         clearInterval(intervalRef.current);
         const id = setInterval(() => {
           const stepped = turingMachine.step();
@@ -174,11 +181,11 @@ export function useTuringMachine() {
             pauseMachine();
           }
         }, newSpeed * 1000);
-        
+
         intervalRef.current = id;
         setIntervalId(id);
       }
-      
+
       return newSpeed;
     });
   }, [turingMachine, updateMachineState, pauseMachine]);
@@ -186,9 +193,14 @@ export function useTuringMachine() {
   const decreaseSpeed = useCallback(() => {
     setSpeed((prevSpeed) => {
       const newSpeed = Math.min(3, prevSpeed + 0.1); // Maximum 3 seconds
-      
+
       // If machine is running, restart with new speed
-      if (intervalRef.current && turingMachine && !turingMachine.halted && !turingMachine.error) {
+      if (
+        intervalRef.current &&
+        turingMachine &&
+        !turingMachine.halted &&
+        !turingMachine.error
+      ) {
         clearInterval(intervalRef.current);
         const id = setInterval(() => {
           const stepped = turingMachine.step();
@@ -198,11 +210,11 @@ export function useTuringMachine() {
             pauseMachine();
           }
         }, newSpeed * 1000);
-        
+
         intervalRef.current = id;
         setIntervalId(id);
       }
-      
+
       return newSpeed;
     });
   }, [turingMachine, updateMachineState, pauseMachine]);

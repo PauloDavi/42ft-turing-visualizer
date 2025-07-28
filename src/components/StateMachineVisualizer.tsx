@@ -2,6 +2,7 @@ import { useRef, useCallback, useEffect } from "react";
 import { Box, Text, HStack, Circle, VStack, Flex } from "@chakra-ui/react";
 import * as d3 from "d3";
 import { NODE_RADIUS } from "../utils/constants";
+import { useTranslation } from "react-i18next";
 import type {
   TuringMachineDefinition,
   GraphNode,
@@ -19,6 +20,7 @@ export const StateMachineVisualizer = ({
   currentState,
   lastTransitionId,
 }: StateMachineVisualizerProps) => {
+  const { t } = useTranslation();
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<GraphNode, GraphLink> | null>(
     null
@@ -553,7 +555,7 @@ export const StateMachineVisualizer = ({
           mb={4}
           textAlign="center"
         >
-          Visualização da Máquina de Estados
+          {t("stateMachine.title")}
         </Text>
 
         <Flex justify="center" mb={4} gap={6} wrap="wrap">
@@ -565,7 +567,7 @@ export const StateMachineVisualizer = ({
               borderColor="gray.500"
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
-              Estado Normal
+              {t("stateMachine.normalState")}
             </Text>
           </HStack>
           <HStack gap={2}>
@@ -576,7 +578,7 @@ export const StateMachineVisualizer = ({
               borderColor="yellow.500"
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
-              Estado Atual
+              {t("stateMachine.currentState")}
             </Text>
           </HStack>
           <HStack gap={2}>
@@ -587,7 +589,7 @@ export const StateMachineVisualizer = ({
               borderColor="green.500"
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
-              Estado Final
+              {t("stateMachine.finalState")}
             </Text>
           </HStack>
         </Flex>
@@ -609,9 +611,7 @@ export const StateMachineVisualizer = ({
           textAlign="center"
           mt={2}
         >
-          Arraste os estados para reorganizar o diagrama. Use a roda do mouse
-          para ampliar/reduzir. As transições são mostradas como: entrada/saída,
-          movimento
+          {t("stateMachine.instructions")}
         </Text>
       </Box>
     </VStack>

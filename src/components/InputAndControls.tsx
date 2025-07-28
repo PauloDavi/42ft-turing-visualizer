@@ -1,5 +1,6 @@
 import { Button, Flex, Box } from "@chakra-ui/react";
 import { FaPlay } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { TapeInput } from "./TapeInput";
 
 interface InputAndControlsProps {
@@ -15,6 +16,8 @@ export const InputAndControls = ({
   initialTapeInput,
   canLoad,
 }: InputAndControlsProps) => {
+  const { t } = useTranslation();
+
   return (
     <Flex direction="row" gap={4} align="end">
       <Box flex="1">
@@ -25,9 +28,10 @@ export const InputAndControls = ({
         onClick={handleLoadMachine}
         disabled={!canLoad}
         size="lg"
+        title={t("tooltips.loadMachine")}
       >
         <FaPlay />
-        Carregar Máquina
+        {t("buttons.loadMachine")}
       </Button>
     </Flex>
   );

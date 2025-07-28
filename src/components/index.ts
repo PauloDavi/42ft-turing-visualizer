@@ -6,3 +6,4 @@ export { GitHubInfos } from "./GitHubInfos";
 export { CodeEditor } from "./CodeEditor";
 export { TapeInput } from "./TapeInput";
 export { InputAndControls } from "./InputAndControls";
+export { LanguageSelector } from "./LanguageSelector";

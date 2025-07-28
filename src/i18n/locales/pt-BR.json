@@ -1,0 +1,119 @@
+{
+  "title": "Simulador de Máquina de Turing",
+  "buttons": {
+    "loadMachine": "Carregar Máquina",
+    "resetTape": "Reiniciar Fita",
+    "nextStep": "Próximo Passo",
+    "run": "Executar",
+    "pause": "Pausar",
+    "increaseSpeed": "Mais Rápido",
+    "decreaseSpeed": "Mais Lento"
+  },
+  "tooltips": {
+    "decreaseSpeed": "Diminui a velocidade de execução da máquina (mais lento)",
+    "run": "Executa a máquina automaticamente com a velocidade atual",
+    "increaseSpeed": "Aumenta a velocidade de execução da máquina (mais rápido)",
+    "pause": "Para a execução automática da máquina",
+    "nextStep": "Executa apenas um passo da máquina de Turing",
+    "resetTape": "Reinicia a fita com o input inicial e reseta o estado da máquina",
+    "loadMachine": "Carrega a definição da máquina de Turing com a fita inicial",
+    "resetTapeInput": "Reinicia apenas a fita mantendo a máquina carregada"
+  },
+  "labels": {
+    "machineName": "Nome da Máquina",
+    "currentState": "Estado Atual",
+    "headPosition": "Posição da Cabeça",
+    "lastRead": "Último Lido",
+    "lastWrite": "Último Escrito",
+    "lastAction": "Última Ação",
+    "tapeInput": "Entrada da Fita"
+  },
+  "messages": {
+    "machineLoadedSuccess": "Máquina de Turing carregada com sucesso!",
+    "tapeReset": "Fita reiniciada.",
+    "loadMachineFirst": "Por favor, carregue uma Máquina de Turing primeiro.",
+    "loadAndResetFirst": "Por favor, carregue e reinicie uma Máquina de Turing primeiro.",
+    "machineNotLoadedOrStopped": "Máquina não carregada ou já parou/erro. Reinicie a fita."
+  },
+  "machine": {
+    "errors": {
+      "invalidCharacterInTape": "Erro: Caractere '{{char}}' na posição {{position}} da fita não está no alfabeto. Alfabeto permitido: [{{alphabet}}].",
+      "noTransitionForState": "Erro: Nenhuma transição definida para o estado '{{state}}'.",
+      "noTransitionForSymbol": "Erro: Nenhuma transição para o estado '{{state}}' lendo '{{symbol}}'."
+    },
+    "states": {
+      "halted": "PAROU no estado final '{{state}}'.",
+      "initial": "Initial",
+      "notApplicable": "N/A"
+    }
+  },
+  "validation": {
+    "tape": {
+      "invalidCharacter": "Caractere '{{char}}' na posição {{position}} da fita não está no alfabeto. Alfabeto permitido: [{{alphabet}}]."
+    },
+    "definition": {
+      "mustBeObject": "Definição deve ser um objeto JSON válido.",
+      "missingFields": "Definição inválida da Máquina de Turing. Campos obrigatórios ausentes.",
+      "initialStateNotFound": "Estado inicial '{{state}}' não encontrado na lista de estados.",
+      "alphabetMustBeArray": "Alfabeto deve ser um array.",
+      "invalidAlphabetSymbol": "Símbolo do alfabeto '{{symbol}}' deve ser uma string de exatamente 1 caractere.",
+      "invalidBlankSymbol": "Símbolo em branco '{{blank}}' deve ser uma string de exatamente 1 caractere.",
+      "finalsMustBeArray": "Finals deve ser um array.",
+      "noFinalStates": "Deve haver pelo menos um estado final.",
+      "finalStateNotFound": "Estado final '{{state}}' não encontrado na lista de estados.",
+      "transitionStateNotInList": "Estado '{{state}}' nas transições não está na lista de estados definidos.",
+      "transitionsMustBeArray": "Transições para o estado '{{state}}' devem ser um array.",
+      "invalidTransition": "Transição inválida no estado '{{state}}'.",
+      "invalidReadSymbol": "Símbolo de leitura '{{symbol}}' na transição do estado '{{state}}' deve ser uma string de exatamente 1 caractere.",
+      "readSymbolNotInAlphabet": "Transição no estado '{{state}}' lê '{{symbol}}' que não está no alfabeto ou é o símbolo em branco.",
+      "invalidWriteSymbol": "Símbolo de escrita '{{symbol}}' na transição do estado '{{state}}' deve ser uma string de exatamente 1 caractere.",
+      "writeSymbolNotInAlphabet": "Transição no estado '{{state}}' escreve '{{symbol}}' que não está no alfabeto ou é o símbolo em branco.",
+      "invalidAction": "Transição no estado '{{state}}' tem ação inválida '{{action}}'. Deve ser 'LEFT' ou 'RIGHT'.",
+      "unknownToState": "Transição no estado '{{state}}' vai para um estado desconhecido '{{toState}}'.",
+      "missingTransitions": "Os seguintes estados não finais não possuem transições definidas: {{states}}.",
+      "extraTransitions": "As transições possuem estados que não são estados não finais: {{states}}."
+    }
+  },
+  "placeholders": {
+    "tapeInput": "Digite a entrada inicial da fita..."
+  },
+  "tape": {
+    "title": "Fita da Máquina de Turing",
+    "head": "HEAD"
+  },
+  "codeEditor": {
+    "title": "Definição da Máquina de Turing (JSON):"
+  },
+  "github": {
+    "projectDescription": "Projeto desenvolvido para o projeto",
+    "description": "da 42. Visualize e execute Máquinas de Turing de forma interativa!",
+    "viewOnGithub": "Ver no GitHub",
+    "contribute": "Contribuir",
+    "footer": "⭐ Curtiu o projeto? Deixe uma estrela no GitHub! Contribuições são muito bem-vindas."
+  },
+  "stateMachine": {
+    "title": "Visualização da Máquina de Estados",
+    "normalState": "Estado Normal",
+    "currentState": "Estado Atual",
+    "finalState": "Estado Final",
+    "instructions": "Arraste os estados para reorganizar o diagrama. Use a roda do mouse para ampliar/reduzir. As transições são mostradas como: entrada/saída, movimento"
+  },
+  "machineGraph": {
+    "loadMachine": "Carregue uma máquina para visualizar o grafo",
+    "title": "Visualização ReactFlow - {{name}}",
+    "normalState": "Estado Normal",
+    "initialState": "Estado Inicial",
+    "finalState": "Estado Final",
+    "currentState": "Estado Atual",
+    "instructions": "Arraste os estados para reorganizar o diagrama. Use os controles para navegar."
+  },
+  "machineInfo": {
+    "title": "Informações da Máquina - {{name}}"
+  },
+  "language": {
+    "portuguese": "Português",
+    "english": "English",
+    "switchToEnglish": "Mudar para inglês",
+    "switchToPortuguese": "Mudar para português"
+  }
+}

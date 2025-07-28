@@ -1,4 +1,5 @@
 import { Box, Input, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 interface TapeInputProps {
   value: string;
@@ -6,11 +7,9 @@ interface TapeInputProps {
   placeholder?: string;
 }
 
-export const TapeInput = ({
-  value,
-  onChange,
-  placeholder = "Digite os símbolos da fita aqui (ex: 111-11=)",
-}: TapeInputProps) => {
+export const TapeInput = ({ value, onChange, placeholder }: TapeInputProps) => {
+  const { t } = useTranslation();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
@@ -18,10 +17,10 @@ export const TapeInput = ({
   return (
     <Box>
       <Text fontSize="lg" fontWeight="semibold" mb={2}>
-        Fita Inicial:
+        {t("labels.tapeInput")}:
       </Text>
       <Input
-        placeholder={placeholder}
+        placeholder={placeholder || t("placeholders.tapeInput")}
         value={value}
         onChange={handleChange}
         size="lg"

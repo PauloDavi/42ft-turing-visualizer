@@ -1,0 +1,119 @@
+{
+  "title": "Turing Machine Simulator",
+  "buttons": {
+    "loadMachine": "Load Machine",
+    "resetTape": "Reset Tape",
+    "nextStep": "Next Step",
+    "run": "Run",
+    "pause": "Pause",
+    "increaseSpeed": "Faster",
+    "decreaseSpeed": "Slower"
+  },
+  "tooltips": {
+    "decreaseSpeed": "Decrease machine execution speed (slower)",
+    "run": "Execute the machine automatically with current speed",
+    "increaseSpeed": "Increase machine execution speed (faster)",
+    "pause": "Stop automatic machine execution",
+    "nextStep": "Execute only one step of the Turing machine",
+    "resetTape": "Reset tape with initial input and reset machine state",
+    "loadMachine": "Load Turing machine definition with initial tape",
+    "resetTapeInput": "Reset only the tape keeping the machine loaded"
+  },
+  "labels": {
+    "machineName": "Machine Name",
+    "currentState": "Current State",
+    "headPosition": "Head Position",
+    "lastRead": "Last Read",
+    "lastWrite": "Last Write",
+    "lastAction": "Last Action",
+    "tapeInput": "Tape Input"
+  },
+  "messages": {
+    "machineLoadedSuccess": "Turing machine loaded successfully!",
+    "tapeReset": "Tape reset.",
+    "loadMachineFirst": "Please load a Turing Machine first.",
+    "loadAndResetFirst": "Please load and reset a Turing Machine first.",
+    "machineNotLoadedOrStopped": "Machine not loaded or already stopped/error. Reset the tape."
+  },
+  "machine": {
+    "errors": {
+      "invalidCharacterInTape": "Error: Character '{{char}}' at position {{position}} of the tape is not in the alphabet. Allowed alphabet: [{{alphabet}}].",
+      "noTransitionForState": "Error: No transition defined for state '{{state}}'.",
+      "noTransitionForSymbol": "Error: No transition for state '{{state}}' reading '{{symbol}}'."
+    },
+    "states": {
+      "halted": "HALTED at final state '{{state}}'.",
+      "initial": "Initial",
+      "notApplicable": "N/A"
+    }
+  },
+  "validation": {
+    "tape": {
+      "invalidCharacter": "Character '{{char}}' at position {{position}} of the tape is not in the alphabet. Allowed alphabet: [{{alphabet}}]."
+    },
+    "definition": {
+      "mustBeObject": "Definition must be a valid JSON object.",
+      "missingFields": "Invalid Turing Machine definition. Required fields are missing.",
+      "initialStateNotFound": "Initial state '{{state}}' not found in the states list.",
+      "alphabetMustBeArray": "Alphabet must be an array.",
+      "invalidAlphabetSymbol": "Alphabet symbol '{{symbol}}' must be a string of exactly 1 character.",
+      "invalidBlankSymbol": "Blank symbol '{{blank}}' must be a string of exactly 1 character.",
+      "finalsMustBeArray": "Finals must be an array.",
+      "noFinalStates": "There must be at least one final state.",
+      "finalStateNotFound": "Final state '{{state}}' not found in the states list.",
+      "transitionStateNotInList": "State '{{state}}' in transitions is not in the defined states list.",
+      "transitionsMustBeArray": "Transitions for state '{{state}}' must be an array.",
+      "invalidTransition": "Invalid transition in state '{{state}}'.",
+      "invalidReadSymbol": "Read symbol '{{symbol}}' in transition from state '{{state}}' must be a string of exactly 1 character.",
+      "readSymbolNotInAlphabet": "Transition in state '{{state}}' reads '{{symbol}}' which is not in the alphabet or the blank symbol.",
+      "invalidWriteSymbol": "Write symbol '{{symbol}}' in transition from state '{{state}}' must be a string of exactly 1 character.",
+      "writeSymbolNotInAlphabet": "Transition in state '{{state}}' writes '{{symbol}}' which is not in the alphabet or the blank symbol.",
+      "invalidAction": "Transition in state '{{state}}' has invalid action '{{action}}'. Must be 'LEFT' or 'RIGHT'.",
+      "unknownToState": "Transition in state '{{state}}' goes to an unknown state '{{toState}}'.",
+      "missingTransitions": "The following non-final states do not have defined transitions: {{states}}.",
+      "extraTransitions": "Transitions have states that are not non-final states: {{states}}."
+    }
+  },
+  "placeholders": {
+    "tapeInput": "Enter initial tape input..."
+  },
+  "tape": {
+    "title": "Turing Machine Tape",
+    "head": "HEAD"
+  },
+  "codeEditor": {
+    "title": "Turing Machine Definition (JSON):"
+  },
+  "github": {
+    "projectDescription": "Project developed for the",
+    "description": "from 42. Visualize and run Turing Machines interactively!",
+    "viewOnGithub": "View on GitHub",
+    "contribute": "Contribute",
+    "footer": "⭐ Liked the project? Leave a star on GitHub! Contributions are very welcome."
+  },
+  "stateMachine": {
+    "title": "State Machine Visualization",
+    "normalState": "Normal State",
+    "currentState": "Current State",
+    "finalState": "Final State",
+    "instructions": "Drag states to reorganize the diagram. Use the mouse wheel to zoom in/out. Transitions are shown as: input/output, movement"
+  },
+  "machineGraph": {
+    "loadMachine": "Load a machine to visualize the graph",
+    "title": "ReactFlow Visualization - {{name}}",
+    "normalState": "Normal State",
+    "initialState": "Initial State",
+    "finalState": "Final State",
+    "currentState": "Current State",
+    "instructions": "Drag states to reorganize the diagram. Use the controls to navigate."
+  },
+  "machineInfo": {
+    "title": "Machine Information - {{name}}"
+  },
+  "language": {
+    "portuguese": "Português",
+    "english": "English",
+    "switchToEnglish": "Switch to English",
+    "switchToPortuguese": "Switch to Portuguese"
+  }
+}

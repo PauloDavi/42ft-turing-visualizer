@@ -7,7 +7,9 @@ import {
   Heading,
   Text,
   VStack,
+  Flex,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { useTuringMachine } from "./hooks/useTuringMachine";
 import {
   StateMachineVisualizer,
@@ -17,6 +19,7 @@ import {
   CodeEditor,
   GitHubInfos,
   InputAndControls,
+  LanguageSelector,
 } from "./components";
 import {
   DEFAULT_MACHINE_DEFINITION,
@@ -25,6 +28,7 @@ import {
 import { ColorModeButton } from "./components/ui";
 
 const App = () => {
+  const { t } = useTranslation();
   const [tmDefinitionInput, setTmDefinitionInput] = useState(
     JSON.stringify(DEFAULT_MACHINE_DEFINITION, null, 2)
   );
@@ -71,13 +75,24 @@ const App = () => {
   return (
     <Container maxW="container.xl" py={8}>
       <VStack gap={6} align="stretch">
-        <VStack gap={4}>
-          <Heading as="h1" size="2xl" textAlign="center" fontWeight="extrabold">
-            Simulador de Máquina de Turing
-            <ColorModeButton ml={2} />
+        <Flex align="center" w="100%">
+          <Box flex="1" minW={0} />
+          <Heading
+            as="h1"
+            size="2xl"
+            textAlign="center"
+            fontWeight="extrabold"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            {t("title")}
           </Heading>
-          <GitHubInfos />
-        </VStack>
+          <Flex gap={2} flex="1" justify="flex-end" minW={0}>
+            <LanguageSelector />
+            <ColorModeButton />
+          </Flex>
+        </Flex>
 
         <Box
           bg={{ base: "white", _dark: "gray.800" }}
@@ -166,6 +181,7 @@ const App = () => {
           )}
         </Box>
       </VStack>
+      <GitHubInfos />
     </Container>
   );
 };

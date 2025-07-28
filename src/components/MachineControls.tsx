@@ -7,6 +7,7 @@ import {
   FaFastBackward,
   FaRedo,
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface MachineControlsProps {
   onStepMachine: () => void;
@@ -37,6 +38,8 @@ export const MachineControls = ({
   isRunning,
   speed,
 }: MachineControlsProps) => {
+  const { t } = useTranslation();
+
   return (
     <Wrap justify="center" gap={4} mb={8}>
       <WrapItem>
@@ -45,7 +48,7 @@ export const MachineControls = ({
           onClick={onDecreaseSpeed}
           disabled={!isRunning}
           size="lg"
-          title="Diminui a velocidade de execução da máquina (mais lento)"
+          title={t("tooltips.decreaseSpeed")}
         >
           <FaFastBackward />
         </Button>
@@ -56,10 +59,10 @@ export const MachineControls = ({
           onClick={onRunMachine}
           disabled={!canRun}
           size="lg"
-          title="Executa a máquina automaticamente com a velocidade atual"
+          title={t("tooltips.run")}
         >
           <FaPlay />
-          Executar ({speed.toFixed(2)}s)
+          {t("buttons.run")} ({speed.toFixed(2)}s)
         </Button>
       </WrapItem>
       <WrapItem>
@@ -68,7 +71,7 @@ export const MachineControls = ({
           onClick={onIncreaseSpeed}
           disabled={!isRunning}
           size="lg"
-          title="Aumenta a velocidade de execução da máquina (mais rápido)"
+          title={t("tooltips.increaseSpeed")}
         >
           <FaFastForward />
         </Button>
@@ -79,10 +82,10 @@ export const MachineControls = ({
           onClick={onPauseMachine}
           disabled={!canPause}
           size="lg"
-          title="Para a execução automática da máquina"
+          title={t("tooltips.pause")}
         >
           <FaPause />
-          Pausar
+          {t("buttons.pause")}
         </Button>
       </WrapItem>
       <WrapItem>
@@ -91,10 +94,10 @@ export const MachineControls = ({
           onClick={onStepMachine}
           disabled={!canStep}
           size="lg"
-          title="Executa apenas um passo da máquina de Turing"
+          title={t("tooltips.nextStep")}
         >
           <FaStepForward />
-          Próximo Passo
+          {t("buttons.nextStep")}
         </Button>
       </WrapItem>
       <WrapItem>
@@ -103,10 +106,10 @@ export const MachineControls = ({
           onClick={handleResetTape}
           disabled={!canReset}
           size="lg"
-          title="Reinicia a fita com o input inicial e reseta o estado da máquina"
+          title={t("tooltips.resetTape")}
         >
           <FaRedo />
-          Reiniciar Fita
+          {t("buttons.resetTape")}
         </Button>
       </WrapItem>
     </Wrap>

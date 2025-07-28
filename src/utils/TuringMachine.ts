@@ -3,6 +3,11 @@ import type {
   Transition,
 } from "../types/TuringMachine";
 
+type TranslationFunction = (
+  key: string,
+  options?: Record<string, string | number>
+) => string;
+
 export class TuringMachine {
   definition: TuringMachineDefinition;
   tape: string[];
@@ -15,19 +20,30 @@ export class TuringMachine {
   halted: boolean;
   error: boolean;
   message: string;
+  private t: TranslationFunction;
 
-  constructor(definition: TuringMachineDefinition) {
+  constructor(
+    definition: TuringMachineDefinition,
+    translateFn?: TranslationFunction
+  ) {
     this.definition = definition;
     this.tape = [];
     this.headPosition = 0;
     this.currentState = "";
-    this.lastAction = "N/A";
-    this.lastRead = "N/A";
-    this.lastWrite = "N/A";
+    this.lastAction = translateFn
+      ? translateFn("machine.states.notApplicable")
+      : "N/A";
+    this.lastRead = translateFn
+      ? translateFn("machine.states.notApplicable")
+      : "N/A";
+    this.lastWrite = translateFn
+      ? translateFn("machine.states.notApplicable")
+      : "N/A";
     this.lastTransitionId = null;
     this.halted = false;
     this.error = false;
     this.message = "";
+    this.t = translateFn || ((key: string) => key);
   }
 
   loadTape(initialTapeString: string): void {
@@ -37,9 +53,11 @@ export class TuringMachine {
       const char = tapeCharacters[i];
       if (!this.definition.alphabet.includes(char)) {
         this.error = true;
-        this.message = `Erro: Caractere '${char}' na posição ${i} da fita não está no alfabeto. Alfabeto permitido: [${this.definition.alphabet.join(
-          ", "
-        )}]'.`;
+        this.message = this.t("machine.errors.invalidCharacterInTape", {
+          char,
+          position: i.toString(),
+          alphabet: this.definition.alphabet.join(", "),
+        });
         return;
       }
     }
@@ -47,9 +65,9 @@ export class TuringMachine {
     this.tape = tapeCharacters;
     this.headPosition = 0;
     this.currentState = this.definition.initial;
-    this.lastAction = "Initial";
-    this.lastRead = "N/A";
-    this.lastWrite = "N/A";
+    this.lastAction = this.t("machine.states.initial");
+    this.lastRead = this.t("machine.states.notApplicable");
+    this.lastWrite = this.t("machine.states.notApplicable");
     this.lastTransitionId = null;
     this.halted = false;
     this.error = false;
@@ -71,7 +89,9 @@ export class TuringMachine {
     const transitions = this.definition.transitions[this.currentState];
     if (!transitions) {
       this.error = true;
-      this.message = `Erro: Nenhuma transição definida para o estado '${this.currentState}'.`;
+      this.message = this.t("machine.errors.noTransitionForState", {
+        state: this.currentState,
+      });
       this.lastTransitionId = null;
       return false;
     }
@@ -104,12 +124,17 @@ export class TuringMachine {
 
       if (this.definition.finals.includes(this.currentState)) {
         this.halted = true;
-        this.message = `PAROU no estado final '${this.currentState}'.`;
+        this.message = this.t("machine.states.halted", {
+          state: this.currentState,
+        });
       }
       return true;
     } else {
       this.error = true;
-      this.message = `Erro: Nenhuma transição para o estado '${this.currentState}' lendo '${currentSymbol}'.`;
+      this.message = this.t("machine.errors.noTransitionForSymbol", {
+        state: this.currentState,
+        symbol: currentSymbol,
+      });
       this.lastTransitionId = null;
       return false;
     }

@@ -1,17 +1,31 @@
 import type { TuringMachineDefinition } from "../types/TuringMachine";
 
+type TranslationFunction = (
+  key: string,
+  options?: Record<string, string | number>
+) => string;
+
 export function validateTapeString(
   tapeString: string,
-  alphabet: string[]
+  alphabet: string[],
+  t?: TranslationFunction
 ): { isValid: boolean; error?: string } {
   for (let i = 0; i < tapeString.length; i++) {
     const char = tapeString[i];
     if (!alphabet.includes(char)) {
+      const errorMessage = t
+        ? t("validation.tape.invalidCharacter", {
+            char,
+            position: i.toString(),
+            alphabet: alphabet.join(", "),
+          })
+        : `Caractere '${char}' na posição ${i} da fita não está no alfabeto. Alfabeto permitido: [${alphabet.join(
+            ", "
+          )}].`;
+
       return {
         isValid: false,
-        error: `Caractere '${char}' na posição ${i} da fita não está no alfabeto. Alfabeto permitido: [${alphabet.join(
-          ", "
-        )}].`,
+        error: errorMessage,
       };
     }
   }
@@ -20,11 +34,15 @@ export function validateTapeString(
 }
 
 export function validateTuringMachineDefinition(
-  definition: unknown
+  definition: unknown,
+  t?: TranslationFunction
 ): TuringMachineDefinition {
   // Type guard para verificar se é um objeto
   if (typeof definition !== "object" || definition === null) {
-    throw new Error("Definição deve ser um objeto JSON válido.");
+    const message = t
+      ? t("validation.definition.mustBeObject")
+      : "Definição deve ser um objeto JSON válido.";
+    throw new Error(message);
   }
 
   const def = definition as Record<string, unknown>;
@@ -39,52 +57,74 @@ export function validateTuringMachineDefinition(
     !def.finals ||
     !def.transitions
   ) {
-    throw new Error(
-      "Definição inválida da Máquina de Turing. Campos obrigatórios ausentes."
-    );
+    const message = t
+      ? t("validation.definition.missingFields")
+      : "Definição inválida da Máquina de Turing. Campos obrigatórios ausentes.";
+    throw new Error(message);
   }
 
   // Verificação do estado inicial
   if (!Array.isArray(def.states) || !def.states.includes(def.initial)) {
-    throw new Error(
-      `Estado inicial '${def.initial}' não encontrado na lista de estados.`
-    );
+    const message = t
+      ? t("validation.definition.initialStateNotFound", {
+          state: def.initial as string,
+        })
+      : `Estado inicial '${def.initial}' não encontrado na lista de estados.`;
+    throw new Error(message);
   }
 
   // Verificação do alfabeto
   if (!Array.isArray(def.alphabet)) {
-    throw new Error("Alfabeto deve ser um array.");
+    const message = t
+      ? t("validation.definition.alphabetMustBeArray")
+      : "Alfabeto deve ser um array.";
+    throw new Error(message);
   }
 
   for (const symbol of def.alphabet) {
     if (typeof symbol !== "string" || symbol.length !== 1) {
-      throw new Error(
-        `Símbolo do alfabeto '${symbol}' deve ser uma string de exatamente 1 caractere.`
-      );
+      const message = t
+        ? t("validation.definition.invalidAlphabetSymbol", {
+            symbol: symbol as string,
+          })
+        : `Símbolo do alfabeto '${symbol}' deve ser uma string de exatamente 1 caractere.`;
+      throw new Error(message);
     }
   }
 
   // Verificação do símbolo em branco
   if (typeof def.blank !== "string" || def.blank.length !== 1) {
-    throw new Error(
-      `Símbolo em branco '${def.blank}' deve ser uma string de exatamente 1 caractere.`
-    );
+    const message = t
+      ? t("validation.definition.invalidBlankSymbol", {
+          blank: def.blank as string,
+        })
+      : `Símbolo em branco '${def.blank}' deve ser uma string de exatamente 1 caractere.`;
+    throw new Error(message);
   }
 
   // Verificação dos estados finais
   if (!Array.isArray(def.finals)) {
-    throw new Error("Finals deve ser um array.");
+    const message = t
+      ? t("validation.definition.finalsMustBeArray")
+      : "Finals deve ser um array.";
+    throw new Error(message);
   }
 
   if (def.finals.length === 0) {
-    throw new Error("Deve haver pelo menos um estado final.");
+    const message = t
+      ? t("validation.definition.noFinalStates")
+      : "Deve haver pelo menos um estado final.";
+    throw new Error(message);
   }
 
   for (const finalState of def.finals) {
     if (!def.states.includes(finalState)) {
-      throw new Error(
-        `Estado final '${finalState}' não encontrado na lista de estados.`
-      );
+      const message = t
+        ? t("validation.definition.finalStateNotFound", {
+            state: finalState as string,
+          })
+        : `Estado final '${finalState}' não encontrado na lista de estados.`;
+      throw new Error(message);
     }
   }
 
@@ -92,68 +132,97 @@ export function validateTuringMachineDefinition(
   const transitions = def.transitions as Record<string, unknown>;
   for (const state in transitions) {
     if (!def.states.includes(state)) {
-      throw new Error(
-        `Estado '${state}' nas transições não está na lista de estados definidos.`
-      );
+      const message = t
+        ? t("validation.definition.transitionStateNotInList", { state })
+        : `Estado '${state}' nas transições não está na lista de estados definidos.`;
+      throw new Error(message);
     }
 
     const stateTransitions = transitions[state];
     if (!Array.isArray(stateTransitions)) {
-      throw new Error(
-        `Transições para o estado '${state}' devem ser um array.`
-      );
+      const message = t
+        ? t("validation.definition.transitionsMustBeArray", { state })
+        : `Transições para o estado '${state}' devem ser um array.`;
+      throw new Error(message);
     }
 
     for (const transition of stateTransitions) {
       if (typeof transition !== "object" || transition === null) {
-        throw new Error(`Transição inválida no estado '${state}'.`);
+        const message = t
+          ? t("validation.definition.invalidTransition", { state })
+          : `Transição inválida no estado '${state}'.`;
+        throw new Error(message);
       }
 
-      const t = transition as Record<string, unknown>;
+      const trans = transition as Record<string, unknown>;
 
       // Verificação do símbolo de leitura
-      if (typeof t.read !== "string" || t.read.length !== 1) {
-        throw new Error(
-          `Símbolo de leitura '${t.read}' na transição do estado '${state}' deve ser uma string de exatamente 1 caractere.`
-        );
+      if (typeof trans.read !== "string" || trans.read.length !== 1) {
+        const message = t
+          ? t("validation.definition.invalidReadSymbol", {
+              state,
+              symbol: trans.read as string,
+            })
+          : `Símbolo de leitura '${trans.read}' na transição do estado '${state}' deve ser uma string de exatamente 1 caractere.`;
+        throw new Error(message);
       }
 
       if (
         !Array.isArray(def.alphabet) ||
-        (!def.alphabet.includes(t.read) && t.read !== def.blank)
+        (!def.alphabet.includes(trans.read) && trans.read !== def.blank)
       ) {
-        throw new Error(
-          `Transição no estado '${state}' lê '${t.read}' que não está no alfabeto ou é o símbolo em branco.`
-        );
+        const message = t
+          ? t("validation.definition.readSymbolNotInAlphabet", {
+              state,
+              symbol: trans.read,
+            })
+          : `Transição no estado '${state}' lê '${trans.read}' que não está no alfabeto ou é o símbolo em branco.`;
+        throw new Error(message);
       }
 
       // Verificação do símbolo de escrita
-      if (typeof t.write !== "string" || t.write.length !== 1) {
-        throw new Error(
-          `Símbolo de escrita '${t.write}' na transição do estado '${state}' deve ser uma string de exatamente 1 caractere.`
-        );
+      if (typeof trans.write !== "string" || trans.write.length !== 1) {
+        const message = t
+          ? t("validation.definition.invalidWriteSymbol", {
+              state,
+              symbol: trans.write as string,
+            })
+          : `Símbolo de escrita '${trans.write}' na transição do estado '${state}' deve ser uma string de exatamente 1 caractere.`;
+        throw new Error(message);
       }
       if (
         !Array.isArray(def.alphabet) ||
-        (!def.alphabet.includes(t.write) && t.write !== def.blank)
+        (!def.alphabet.includes(trans.write) && trans.write !== def.blank)
       ) {
-        throw new Error(
-          `Transição no estado '${state}' escreve '${t.write}' que não está no alfabeto ou é o símbolo em branco.`
-        );
+        const message = t
+          ? t("validation.definition.writeSymbolNotInAlphabet", {
+              state,
+              symbol: trans.write,
+            })
+          : `Transição no estado '${state}' escreve '${trans.write}' que não está no alfabeto ou é o símbolo em branco.`;
+        throw new Error(message);
       }
 
       // Verificação da ação
-      if (!["LEFT", "RIGHT"].includes(t.action as string)) {
-        throw new Error(
-          `Transição no estado '${state}' tem ação inválida '${t.action}'. Deve ser 'LEFT' ou 'RIGHT'.`
-        );
+      if (!["LEFT", "RIGHT"].includes(trans.action as string)) {
+        const message = t
+          ? t("validation.definition.invalidAction", {
+              state,
+              action: trans.action as string,
+            })
+          : `Transição no estado '${state}' tem ação inválida '${trans.action}'. Deve ser 'LEFT' ou 'RIGHT'.`;
+        throw new Error(message);
       }
 
       // Verificação do estado de destino
-      if (!def.states.includes(t.to_state)) {
-        throw new Error(
-          `Transição no estado '${state}' vai para um estado desconhecido '${t.to_state}'.`
-        );
+      if (!def.states.includes(trans.to_state)) {
+        const message = t
+          ? t("validation.definition.unknownToState", {
+              state,
+              toState: trans.to_state as string,
+            })
+          : `Transição no estado '${state}' vai para um estado desconhecido '${trans.to_state}'.`;
+        throw new Error(message);
       }
     }
   }
@@ -173,18 +242,24 @@ export function validateTuringMachineDefinition(
   );
 
   if (missingStates.length > 0) {
-    throw new Error(
-      `Os seguintes estados não finais não possuem transições definidas: ${missingStates.join(
-        ", "
-      )}.`
-    );
+    const message = t
+      ? t("validation.definition.missingTransitions", {
+          states: missingStates.join(", "),
+        })
+      : `Os seguintes estados não finais não possuem transições definidas: ${missingStates.join(
+          ", "
+        )}.`;
+    throw new Error(message);
   }
   if (extraStates.length > 0) {
-    throw new Error(
-      `As transições possuem estados que não são estados não finais: ${extraStates.join(
-        ", "
-      )}.`
-    );
+    const message = t
+      ? t("validation.definition.extraTransitions", {
+          states: extraStates.join(", "),
+        })
+      : `As transições possuem estados que não são estados não finais: ${extraStates.join(
+          ", "
+        )}.`;
+    throw new Error(message);
   }
 
   return def as unknown as TuringMachineDefinition;

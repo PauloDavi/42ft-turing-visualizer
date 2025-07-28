@@ -1,15 +1,17 @@
 import { Text, Button, HStack, VStack, Link } from "@chakra-ui/react";
 import { FaGithub, FaHeart } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 export const GitHubInfos = () => {
+  const { t } = useTranslation();
   return (
-    <VStack gap={3} textAlign="center">
+    <VStack gap={3} textAlign="center" mt={4}>
       <Text
         fontSize="lg"
         color={{ base: "gray.600", _dark: "gray.400" }}
         maxW="2xl"
       >
-        Projeto desenvolvido para o projeto{" "}
+        {t("github.projectDescription")}{" "}
         <Text
           as="span"
           fontWeight="bold"
@@ -17,7 +19,7 @@ export const GitHubInfos = () => {
         >
           ft_turing
         </Text>{" "}
-        da 42. Visualize e execute Máquinas de Turing de forma interativa!
+        {t("github.description")}
       </Text>
 
       <HStack gap={4} justify="center" wrap="wrap">
@@ -36,7 +38,7 @@ export const GitHubInfos = () => {
             gap={2}
           >
             <FaGithub />
-            Ver no GitHub
+            {t("github.viewOnGithub")}
           </Button>
         </Link>
 
@@ -55,7 +57,7 @@ export const GitHubInfos = () => {
             gap={2}
           >
             <FaHeart />
-            Contribuir
+            {t("github.contribute")}
           </Button>
         </Link>
       </HStack>
@@ -65,8 +67,7 @@ export const GitHubInfos = () => {
         color={{ base: "gray.500", _dark: "gray.500" }}
         textAlign="center"
       >
-        ⭐ Curtiu o projeto? Deixe uma estrela no GitHub! Contribuições são
-        muito bem-vindas.
+        {t("github.footer")}
       </Text>
     </VStack>
   );

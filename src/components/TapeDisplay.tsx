@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Box, Text, HStack, Badge } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { TAPE_WINDOW_SIZE } from "../utils/constants";
 
 interface TapeDisplayProps {
@@ -8,6 +9,8 @@ interface TapeDisplayProps {
 }
 
 export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
+  const { t } = useTranslation();
+
   const visibleCells = useMemo(() => {
     const start = Math.max(0, headPosition - TAPE_WINDOW_SIZE);
     const end = Math.min(tape.length, headPosition + TAPE_WINDOW_SIZE + 1);
@@ -38,7 +41,7 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
         mb={4}
         textAlign="center"
       >
-        Fita da Máquina de Turing
+        {t("tape.title")}
       </Text>
       <Box
         overflowX="auto"
@@ -48,7 +51,7 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
         minH="80px"
         py={4}
       >
-        <HStack gap={1} align="center">
+        <HStack gap={0} align="center">
           {visibleCells.map((cell) => (
             <Box
               key={cell.index}
@@ -64,8 +67,9 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
                   fontSize="xs"
                   mb={1}
                   px={2}
+                  transform="translateY(-10px)"
                 >
-                  HEAD
+                  {t("tape.head")}
                 </Badge>
               )}
               <Box
@@ -77,7 +81,6 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
                     ? "green.500"
                     : { base: "gray.400", _dark: "gray.600" }
                 }
-                borderRadius="md"
                 bg={
                   cell.isHead
                     ? { base: "green.50", _dark: "green.800" }
@@ -94,8 +97,11 @@ export const TapeDisplay = ({ tape, headPosition }: TapeDisplayProps) => {
                     : { base: "gray.700", _dark: "gray.200" }
                 }
                 transition="all 0.3s"
-                transform={cell.isHead ? "scale(1.1)" : "scale(1)"}
+                transform={
+                  cell.isHead ? "scale(1.1) translateY(-10px)" : "scale(1)"
+                }
                 boxShadow={cell.isHead ? "lg" : "sm"}
+                zIndex={cell.isHead ? 1 : undefined}
               >
                 {cell.value}
               </Box>
