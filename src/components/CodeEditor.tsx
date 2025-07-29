@@ -1,9 +1,9 @@
-import Editor from "@monaco-editor/react";
+import Editor, { type OnMount } from "@monaco-editor/react";
 import { Box, Text } from "@chakra-ui/react";
 import { useColorMode } from "./ui";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-
+import turingSchema from "../utils/turingSchema";
 interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -60,10 +60,17 @@ export const CodeEditor = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  const handleEditorDidMount: OnMount = (_editor, monaco) => {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      schemas: [turingSchema],
+    });
+  };
+
   return (
     <Box>
       <Text fontSize="lg" fontWeight="semibold" mb={2}>
-        {t('codeEditor.title')}
+        {t("codeEditor.title")}
       </Text>
       <Box
         borderRadius="md"
@@ -78,6 +85,7 @@ export const CodeEditor = ({
           value={value}
           theme={colorMode == "dark" ? "vs-dark" : "vs-light"}
           onChange={handleEditorChange}
+          onMount={handleEditorDidMount}
           options={{
             minimap: { enabled: false },
             scrollbar: { vertical: "auto", horizontal: "auto" },
