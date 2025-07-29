@@ -1,8 +1,9 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useMemo } from "react";
 import { Box, Text, HStack, Circle, VStack, Flex } from "@chakra-ui/react";
 import * as d3 from "d3";
 import { NODE_RADIUS } from "../utils/constants";
 import { useTranslation } from "react-i18next";
+import { useColorMode } from "./ui";
 import type {
   TuringMachineDefinition,
   GraphNode,
@@ -21,12 +22,47 @@ export const StateMachineVisualizer = ({
   lastTransitionId,
 }: StateMachineVisualizerProps) => {
   const { t } = useTranslation();
+  const { colorMode } = useColorMode();
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<GraphNode, GraphLink> | null>(
     null
   );
   const currentDefinitionRef = useRef<TuringMachineDefinition | null>(null);
+  const currentColorModeRef = useRef<string>(colorMode);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
+  // Cores adaptáveis ao tema
+  const colors = useMemo(
+    () => ({
+      // Background e bordas
+      svgBackground: colorMode === "dark" ? "#1a202c" : "#f8fafc",
+      svgBorder: colorMode === "dark" ? "#4a5568" : "#e2e8f0",
+
+      // Nós (estados)
+      nodeFill: colorMode === "dark" ? "#2d3748" : "#ffffff",
+      nodeStroke: colorMode === "dark" ? "#a0aec0" : "#64748b",
+      nodeText: colorMode === "dark" ? "#f7fafc" : "#1f2937",
+
+      // Estados finais
+      finalNodeFill: colorMode === "dark" ? "#2f855a" : "#d1fae5",
+      finalNodeStroke: colorMode === "dark" ? "#48bb78" : "#10b981",
+
+      // Estado atual
+      currentNodeFill: colorMode === "dark" ? "#c05621" : "#fef3c7",
+      currentNodeStroke: colorMode === "dark" ? "#f6ad55" : "#f59e0b",
+
+      // Links (transições)
+      linkStroke: colorMode === "dark" ? "#a0aec0" : "#64748b",
+      activeLinkStroke: colorMode === "dark" ? "#f6ad55" : "#f59e0b",
+
+      // Texto das transições
+      linkTextFill: colorMode === "dark" ? "#f7fafc" : "#1f2937",
+      linkTextBg: colorMode === "dark" ? "#2d3748" : "#ffffff",
+      linkTextBorder: colorMode === "dark" ? "#4a5568" : "#e5e7eb",
+      linkTextStroke: colorMode === "dark" ? "#2d3748" : "#ffffff",
+    }),
+    [colorMode]
+  );
 
   const updateHighlight = useCallback(() => {
     const svg = d3.select(svgRef.current);
@@ -38,14 +74,14 @@ export const StateMachineVisualizer = ({
     // Reset all nodes to default style
     mainGroup
       .selectAll(".node circle")
-      .style("fill", "#ffffff")
-      .style("stroke", "#64748b")
+      .style("fill", colors.nodeFill)
+      .style("stroke", colors.nodeStroke)
       .style("stroke-width", "3px");
 
     // Reset all links to default style
     mainGroup
       .selectAll(".link")
-      .style("stroke", "#64748b")
+      .style("stroke", colors.linkStroke)
       .style("stroke-width", "2px")
       .style("opacity", "0.7")
       .attr("marker-end", (d) =>
@@ -57,26 +93,26 @@ export const StateMachineVisualizer = ({
       .selectAll(".node")
       .filter((d) => definition.finals.includes((d as GraphNode).id))
       .select("circle")
-      .style("stroke", "#10b981")
+      .style("stroke", colors.finalNodeStroke)
       .style("stroke-width", "4px")
-      .style("fill", "#d1fae5");
+      .style("fill", colors.finalNodeFill);
 
     // Highlight the current state
     mainGroup
       .selectAll(".node")
       .filter((d) => (d as GraphNode).id === currentState)
       .select("circle")
-      .style("fill", "#fef3c7")
-      .style("stroke", "#f59e0b")
+      .style("fill", colors.currentNodeFill)
+      .style("stroke", colors.currentNodeStroke)
       .style("stroke-width", "5px")
-      .style("filter", "drop-shadow(0 0 10px rgba(245, 158, 11, 0.5))");
+      .style("filter", `drop-shadow(0 0 10px ${colors.currentNodeStroke}80)`); // 80 = 50% opacity
 
     // Highlight the last transition
     if (lastTransitionId) {
       mainGroup
         .selectAll(".link")
         .filter((d) => (d as GraphLink).id === lastTransitionId)
-        .style("stroke", "#f59e0b")
+        .style("stroke", colors.activeLinkStroke)
         .style("stroke-width", "4px")
         .style("opacity", "1")
         .attr("marker-end", (d) =>
@@ -85,14 +121,20 @@ export const StateMachineVisualizer = ({
             : "url(#active-arrow)"
         );
     }
-  }, [currentState, lastTransitionId, definition]);
+  }, [currentState, lastTransitionId, definition, colors]);
 
   const renderGraph = useCallback(() => {
     if (!definition || !svgRef.current) return;
 
-    // Só recriar o gráfico se a definição mudou
-    if (currentDefinitionRef.current === definition) return;
+    // Verificar se o tema mudou
+    const themeChanged = currentColorModeRef.current !== colorMode;
+
+    // Recriar o gráfico se a definição mudou OU se o tema mudou
+    if (currentDefinitionRef.current === definition && !themeChanged) return;
+
+    // Atualizar as referências
     currentDefinitionRef.current = definition;
+    currentColorModeRef.current = colorMode;
 
     const container = d3.select(svgRef.current.parentNode as Element);
     const width = (container.node() as Element)?.clientWidth || 800;
@@ -108,10 +150,7 @@ export const StateMachineVisualizer = ({
     const svg = d3
       .select(svgRef.current)
       .attr("width", width)
-      .attr("height", height)
-      .style("background", "#f8fafc")
-      .style("border", "2px solid #e2e8f0")
-      .style("border-radius", "8px");
+      .attr("height", height);
 
     // Criar grupo principal para zoom
     const mainGroup = svg.append("g").attr("class", "main-group");
@@ -125,6 +164,15 @@ export const StateMachineVisualizer = ({
       });
 
     svg.call(zoom);
+
+    // Definir zoom inicial mais reduzido
+    const initialScale = 0.6; // 70% do tamanho original
+    const initialTransform = d3.zoomIdentity
+      .translate(width / 2, height / 2)
+      .scale(initialScale)
+      .translate(-width / 2, -height / 2);
+
+    svg.call(zoom.transform, initialTransform);
     zoomRef.current = zoom;
 
     // Create defs for arrow markers
@@ -142,8 +190,8 @@ export const StateMachineVisualizer = ({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .style("fill", "#64748b")
-      .style("stroke", "#64748b");
+      .style("fill", colors.linkStroke)
+      .style("stroke", colors.linkStroke);
 
     // Active arrow marker
     defs
@@ -157,8 +205,8 @@ export const StateMachineVisualizer = ({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .style("fill", "#f59e0b")
-      .style("stroke", "#f59e0b");
+      .style("fill", colors.activeLinkStroke)
+      .style("stroke", colors.activeLinkStroke);
 
     // Self-loop arrow marker (melhor posicionamento para loops)
     defs
@@ -172,8 +220,8 @@ export const StateMachineVisualizer = ({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M -1.2941 -4.8296 L 9.6593 -2.5882 L 1.2941 4.8296")
-      .style("fill", "#64748b")
-      .style("stroke", "#64748b");
+      .style("fill", colors.linkStroke)
+      .style("stroke", colors.linkStroke);
 
     // Active self-loop arrow marker
     defs
@@ -187,8 +235,8 @@ export const StateMachineVisualizer = ({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M -1.2941 -4.8296 L 9.6593 -2.5882 L 1.2941 4.8296")
-      .style("fill", "#f59e0b")
-      .style("stroke", "#f59e0b");
+      .style("fill", colors.activeLinkStroke)
+      .style("stroke", colors.activeLinkStroke);
 
     const graphNodes: GraphNode[] = definition.states.map((state) => ({
       id: state,
@@ -260,7 +308,7 @@ export const StateMachineVisualizer = ({
         d.isSelfLoop ? "url(#self-loop-arrow)" : "url(#arrow)"
       )
       .style("fill", "none")
-      .style("stroke", "#64748b")
+      .style("stroke", colors.linkStroke)
       .style("stroke-width", "2px")
       .style("opacity", "0.7");
 
@@ -273,8 +321,8 @@ export const StateMachineVisualizer = ({
       .enter()
       .append("rect")
       .attr("class", "link-text-bg")
-      .style("fill", "white")
-      .style("stroke", "#e5e7eb")
+      .style("fill", colors.linkTextBg)
+      .style("stroke", colors.linkTextBorder)
       .style("stroke-width", "1px")
       .style("rx", "4")
       .style("ry", "4")
@@ -292,12 +340,12 @@ export const StateMachineVisualizer = ({
       .style("font-family", "Inter, system-ui, sans-serif")
       .style("font-size", "11px")
       .style("font-weight", "700")
-      .style("fill", "#1f2937")
+      .style("fill", colors.linkTextFill)
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
       .style("pointer-events", "none")
-      .style("stroke", "#ffffff")
-      .style("stroke-width", "3px")
+      .style("stroke", colors.linkTextStroke)
+      .style("stroke-width", "4px")
       .style("paint-order", "stroke fill");
 
     const node = mainGroup
@@ -319,10 +367,15 @@ export const StateMachineVisualizer = ({
     node
       .append("circle")
       .attr("r", NODE_RADIUS)
-      .style("fill", "#ffffff")
-      .style("stroke", "#64748b")
+      .style("fill", colors.nodeFill)
+      .style("stroke", colors.nodeStroke)
       .style("stroke-width", "3px")
-      .style("filter", "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))")
+      .style(
+        "filter",
+        colorMode === "dark"
+          ? "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))"
+          : "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))"
+      )
       .style("cursor", "pointer");
 
     node
@@ -331,7 +384,7 @@ export const StateMachineVisualizer = ({
       .style("font-family", "Inter, system-ui, sans-serif")
       .style("font-size", "14px")
       .style("font-weight", "700")
-      .style("fill", "#1f2937")
+      .style("fill", colors.nodeText)
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
       .style("pointer-events", "none");
@@ -530,7 +583,7 @@ export const StateMachineVisualizer = ({
     }
 
     updateHighlight();
-  }, [definition, updateHighlight]);
+  }, [definition, updateHighlight, colors, colorMode]);
 
   useEffect(() => {
     renderGraph();
@@ -539,6 +592,13 @@ export const StateMachineVisualizer = ({
   useEffect(() => {
     updateHighlight();
   }, [updateHighlight]); // Atualizar highlights quando estado/transição mudar
+
+  // Novo useEffect para atualizar cores quando o tema mudar
+  useEffect(() => {
+    if (definition && svgRef.current && simulationRef.current) {
+      renderGraph();
+    }
+  }, [colorMode, renderGraph, definition]);
 
   return (
     <VStack gap={6} align="stretch">
@@ -562,9 +622,9 @@ export const StateMachineVisualizer = ({
           <HStack gap={2}>
             <Circle
               size="16px"
-              bg="white"
+              bg={{ base: "white", _dark: "gray.700" }}
               border="3px solid"
-              borderColor="gray.500"
+              borderColor={{ base: "gray.500", _dark: "gray.400" }}
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               {t("stateMachine.normalState")}
@@ -573,9 +633,9 @@ export const StateMachineVisualizer = ({
           <HStack gap={2}>
             <Circle
               size="16px"
-              bg="yellow.100"
+              bg={{ base: "yellow.100", _dark: "orange.800" }}
               border="5px solid"
-              borderColor="yellow.500"
+              borderColor={{ base: "yellow.500", _dark: "orange.400" }}
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               {t("stateMachine.currentState")}
@@ -584,9 +644,9 @@ export const StateMachineVisualizer = ({
           <HStack gap={2}>
             <Circle
               size="16px"
-              bg="green.100"
+              bg={{ base: "green.100", _dark: "green.800" }}
               border="4px solid"
-              borderColor="green.500"
+              borderColor={{ base: "green.500", _dark: "green.400" }}
             />
             <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.100" }}>
               {t("stateMachine.finalState")}
@@ -600,9 +660,9 @@ export const StateMachineVisualizer = ({
           w="full"
           minH="400px"
           border="1px solid"
-          borderColor="gray.300"
+          borderColor={{ base: "gray.300", _dark: "gray.600" }}
           borderRadius="md"
-          bg="gray.50"
+          bg={{ base: "gray.50", _dark: "gray.800" }}
         />
 
         <Text

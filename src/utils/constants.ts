@@ -33,4 +33,4 @@ export const DEFAULT_INITIAL_TAPE = "111-11=";
 
 export const EXECUTION_SPEED_MS = 1000;
 export const TAPE_WINDOW_SIZE = 10;
-export const NODE_RADIUS = 30;
+export const NODE_RADIUS = 45;
